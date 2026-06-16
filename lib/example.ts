@@ -1,0 +1,162 @@
+import type { Story } from "./types";
+
+// La storia d'esempio "Pino e la voce sotto le foglie", presa pari pari dagli
+// artefatti reali del seme (esempio/). Serve a mostrare la UI a pieno carico,
+// end-to-end, senza dipendere da nessun servizio. Sarà rimpiazzata dalle storie
+// generate dall'utente.
+
+const prose = [
+  "La casa nuova aveva troppe stanze, e nessuna era ancora sua. «Va' a vedere il bosco» aveva detto la mamma dalla cucina. «Ma torna per merenda.» Pino rispose di sì con la testa, non con la voce. Poi uscì. Gli alberi cominciavano subito dietro il muretto, fitti, e non sapevano come si chiamava.",
+  "Fece pochi passi sul sentiero. Allora lo sentì: un fischio, due note, *fiu-fiu*, da qualche parte tra le foglie. Pino si fermò. Guardò in alto, guardò ai lati. Niente. Solo rami, e luce che si muoveva. Il fischio non tornò. Forse se l'era inventato lui.",
+  "Restò lì un po'. Una formica attraversava il sentiero portando una briciola più grande di lei, e non aveva fretta per nessuno. Pino la guardò finché non sparì sotto una radice. Il bosco continuava a fare le sue cose, senza badare a lui. Era strano, essere nuovo in un posto così pieno.",
+  "Senza accorgersene, la mano era già in tasca, intorno al sasso. L'aveva preso dal giardino della casa vecchia, l'ultimo giorno, e da allora lo teneva sempre. Era liscio, e stava bene nel palmo. Pino lo strinse. Aveva voglia di dire qualcosa, a quel fischio, a chiunque fosse. E paura.",
+  "Fece un altro passo. Poi un altro. «Ciao?» provò a dire, ma uscì piccolissimo, e se lo mangiò il vento. Si vergognò subito, come se l'avessero sentito tutti. Ma non c'era nessuno a sentirlo. Solo le foglie, che ogni tanto si muovevano dove vento non ce n'era.",
+  "Il fischio si spostava. Adesso veniva da destra, vicino a un tronco caduto; poi da più in là, oltre un cespuglio. Pino lo seguì, lento. Non come chi insegue. Come chi cammina dietro a qualcuno che conosce la strada, e decide di fidarsi un po'.",
+  "A un certo punto inciampò in una radice e quasi cadde, e gli scappò una risata da solo. Si guardò intorno per controllare che non l'avesse visto nessuno. Il fischio, stavolta, sembrò più vicino. Quasi una risposta. A Pino venne da andare avanti, e non indietro.",
+  "Si fermò dietro l'ultimo cespuglio. Bastava un passo per girarci intorno e vedere chi c'era. Pino rimase fermo. A casa vecchia conosceva tutti; qui no, e questa era la differenza. Pensò: e se dico il mio nome, e poi non succede niente? Tenne il sasso più stretto.",
+  "Allora il fischio arrivò di nuovo, due note, *fiu-fiu*, proprio lì davanti. E Pino, invece di tornare indietro, fece una cosa. Tirò fuori il sasso e lo posò sul tronco caduto, piano, come si posa una cosa importante. Poi, a voce alta — più alta di quanto credeva di averne — disse: «Mi chiamo Pino.»",
+  "Per un momento non successe niente. Le foglie stettero ferme. Poi, da dietro il tronco, saltò fuori una ghiandaia, azzurra e marrone, con l'aria di chi aspettava da un po'. Lo guardò di lato, prima con un occhio e poi con l'altro. Lontano, dal muretto, la mamma chiamò che la merenda era pronta.",
+  "Pino guardò il sasso, lì sul tronco. Era della casa vecchia, ma adesso stava bene anche qui, e segnava un posto — questo posto. Pensò di riprenderlo. Poi no. Lo lasciò dov'era. La ghiandaia ci si avvicinò, lo beccò piano una volta, come per provare se era buono, e poi lasciò perdere.",
+  "Tornarono insieme verso il muretto: lui che camminava, lei che saltava da un ramo all'altro, sempre un po' avanti. Prima di sparire tra le foglie, la ghiandaia fischiò ancora. *Fiu-fiu.* Due note. Pino si fermò. Voleva dire «domani»? Non lo sapeva. Ma domani il bosco c'era lo stesso.",
+];
+
+const beats = [
+  "apertura", "distinguere", "distinguere", "connettere", "connettere",
+  "connettere", "connettere", "connettere", "cambiare", "cambiare",
+  "cambiare", "chiusura",
+];
+const hooks = [
+  "panorama", "azione", "dettaglio", "interno", "azione", "transizione",
+  "azione", "interno", "panorama", "azione", "azione", "dettaglio",
+];
+const zones = [
+  "sky_space", "side_space", "vignette", "vignette", "side_space",
+  "ground_space", "side_space", "side_space", "ground_space", "side_space",
+  "ground_space", "vignette",
+];
+const notes = [
+  "[APERTURA D] si apre la scena (apre la promessa)",
+  "si accorge / osserva (introduce: il fischio a due note)",
+  "si accorge / osserva",
+  "si avvicina / tende verso (introduce: il sasso liscio)",
+  "si avvicina / tende verso",
+  "si avvicina / tende verso",
+  "si avvicina / tende verso",
+  "si avvicina / tende verso",
+  "[SOGLIA] qualcosa attraversa (ritorna: il fischio)",
+  "qualcosa attraversa (chiude la promessa)",
+  "qualcosa attraversa (ritorna: il sasso)",
+  "[CHIUSURA 4] si chiude la scena",
+];
+
+export const EXAMPLE_STORY: Story = {
+  id: "esempio",
+  createdAt: "2026-01-01T00:00:00",
+  title: "Pino e la voce sotto le foglie",
+  stage: "book",
+  seed: {
+    language: "it",
+    title: "Pino e la voce sotto le foglie",
+    protagonist: { name: "Pino", age: 6, kind: "riccio" },
+    companions: [{ name: "Ghita", kind: "ghiandaia" }],
+    world_flavor: "animali_del_bosco",
+    setting: { primary: "il bosco dietro la casa nuova", notes: "famiglia appena trasferita" },
+    theme: "amicizia",
+    pugno: "Pino è appena arrivato e non sa come si fa ad avere un amico in un posto nuovo",
+    personal_detail: "tiene sempre in tasca un sasso liscio portato dalla casa vecchia",
+    length_pages: 12,
+    packs: [],
+    spine: {
+      premise: "Pino esce per la prima volta nel bosco dietro la casa nuova, con il sasso in tasca.",
+      problem: "Sente una voce che lo chiama tra le foglie ma non vede nessuno; ha voglia di rispondere e paura di farlo.",
+      threshold_moment: "Invece di tornare indietro, Pino posa il sasso su un tronco e dice il proprio nome ad alta voce.",
+      resolution_mode: "La ghiandaia Ghita esce allo scoperto; non diventano amici di colpo, ma camminano un pezzo insieme.",
+      closure: "immagine che sigilla, non spiega",
+    },
+    voice: { temperamento: "sospesa", lente_sensoriale: "luce" },
+    nonce: 70125,
+  },
+  node: {
+    id: "s01",
+    title: "Pino e la voce sotto le foglie",
+    attribute_dominant: "connettere",
+    deployment_level: "triadico",
+    ear_arc: ["distinguere", "connettere", "cambiare"],
+    premise: "Pino esce per la prima volta nel bosco dietro la casa nuova, con il sasso in tasca.",
+    problem: "Sente una voce che lo chiama tra le foglie ma non vede nessuno; ha voglia di rispondere e paura di farlo.",
+    threshold_moment: "Invece di tornare indietro, Pino posa il sasso su un tronco e dice il proprio nome ad alta voce.",
+    threshold_page: 9,
+    resolution_mode: "La ghiandaia Ghita esce allo scoperto; non diventano amici di colpo, ma camminano un pezzo insieme.",
+    entry_point_type: "D",
+    closure_type: 4,
+    register: "medio",
+    register_range: [0.4, 0.6],
+    time_span_arc: "un_pomeriggio",
+    pages: 12,
+    estimated_words: 883,
+    world_flavor: "animali_del_bosco",
+    setting_primary: "il bosco dietro la casa nuova",
+    season: "primavera",
+    palette_emotiva: "verdi teneri e gialli, luce nuova e mobile — pugno medio",
+    protagonist: { name: "Pino", age: 6, kind: "riccio" },
+    companions: [{ name: "Ghita", kind: "ghiandaia" }],
+    beat_plan: [
+      { beat: "apertura", pages: [1, 1] },
+      { beat: "distinguere", pages: [2, 3] },
+      { beat: "connettere", pages: [4, 8] },
+      { beat: "cambiare", pages: [9, 11] },
+      { beat: "chiusura", pages: [12, 12] },
+    ],
+    seeds: [
+      { id: "seed_01", kind: "dettaglio_del_mondo", what: "il sasso liscio della casa vecchia", planted_page: 4, payoff_page: 11 },
+      { id: "seed_02", kind: "gesto", what: "un fischio a due note che Ghita fa tra le foglie", planted_page: 2, payoff_page: 9 },
+    ],
+    pugno: "Pino è appena arrivato e non sa come si fa ad avere un amico in un posto nuovo",
+    personal_detail: "tiene sempre in tasca un sasso liscio che ha portato dalla casa vecchia",
+    seed_nonce: 70125,
+  },
+  pagePlan: prose.map((_, i) => ({
+    page: i + 1,
+    beat: beats[i],
+    hook: hooks[i],
+    zone: zones[i],
+    note: notes[i],
+  })),
+  prose: prose.map((text, i) => ({ page: i + 1, beat: beats[i], text })),
+  critic: {
+    verdict: "PASS",
+    checks: [
+      { key: "scheletro_invisibile", label: "Scheletro invisibile", pass: true, note: "i tre movimenti non sono mai nominati in astratto" },
+      { key: "niente_moralina", label: "Niente moralina", pass: true, note: "nessuno spiega il senso; la chiusura sigilla con un'immagine" },
+      { key: "chiusura_non_esplicativa", label: "Chiusura non esplicativa", pass: true, note: "closure 4 rispettata: «voleva dire domani? non lo sapeva»" },
+      { key: "soglia_come_gesto", label: "Soglia come gesto", pass: true, note: "p9 è gesto concreto (posa il sasso, dice il nome), non presa di coscienza raccontata" },
+      { key: "semi_pagati", label: "Semi pagati", pass: true, note: "fischio p2→p9; sasso p4→p11: entrambi tornano con peso diverso" },
+      { key: "registro", label: "Registro coerente", pass: true, note: "medio: frasi brevi, poche immagini, coerente" },
+      { key: "banalita", label: "Budget di banalità", pass: true, note: "formica p3, pensiero laterale p8, momento vuoto p10" },
+      { key: "dettaglio_personale", label: "Dettaglio personale", pass: true, note: "il sasso è intessuto, mai esibito" },
+      { key: "frasi_da_mille_storie", label: "Niente frasi-da-mille-storie", pass: true, note: "nessuna riga genericamente intercambiabile" },
+    ],
+    page_flags: [
+      { page: 8, severity: "soft", issue: "«questa era la differenza» è al limite: regge perché è un contrasto concreto casa-vecchia/casa-nuova. Tenere d'occhio in revisione." },
+    ],
+  },
+  manus: prose.map((_, i) => ({
+    page: i + 1,
+    hook: hooks[i],
+    beat: beats[i],
+    storyMoment: notes[i],
+    pov: i === 0 || i === 8 ? "a wide establishing shot, from a distance" : "a medium shot at the characters' eye level",
+    place: "il bosco dietro la casa nuova — luce piena; primavera; verdi teneri e gialli",
+    characters: i >= 9 ? "Pino + Ghita" : "Pino",
+  })),
+  ledger: [
+    { ts: "2026-01-01T00:00:00", actor: "you", event: "seme piantato", detail: "Pino, 6, bosco · amicizia" },
+    { ts: "2026-01-01T00:00:01", actor: "det", event: "nodo costruito", detail: "nonce 70125 · connettere · triadico", durationMs: 280 },
+    { ts: "2026-01-01T00:00:01", actor: "det", event: "hook + brief", detail: "12 pagine · 5 beat", durationMs: 140 },
+    { ts: "2026-01-01T00:00:01", actor: "det", event: "prompt immagini", detail: "12 prompt Manus", durationMs: 90 },
+    { ts: "2026-01-01T00:01:30", actor: "claude", event: "prosa generata", detail: "12 pagine · ~883 parole", durationMs: 47000 },
+    { ts: "2026-01-01T00:02:20", actor: "claude", event: "audit (critic)", detail: "PASS · 9/9 · 1 nota soft", durationMs: 12000 },
+    { ts: "2026-01-01T00:05:00", actor: "manus", event: "illustrazioni", detail: "12/12 pagine", durationMs: 600000 },
+    { ts: "2026-01-01T00:06:00", actor: "det", event: "libro montato", detail: "libro.html → PDF A5", durationMs: 210 },
+  ],
+};

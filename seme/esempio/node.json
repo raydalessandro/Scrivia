@@ -1,0 +1,188 @@
+{
+  "id": "s01",
+  "title": "Pino e la voce sotto le foglie",
+  "language": "it",
+  "schema_version": "seme-1.0",
+  "built_at": "2026-01-01T00:00:00",
+  "seed_nonce": 70125,
+  "attribute_dominant": "connettere",
+  "deployment_level": "triadico",
+  "ear_arc": [
+    "distinguere",
+    "connettere",
+    "cambiare"
+  ],
+  "premise": "Pino esce per la prima volta nel bosco dietro la casa nuova, con il sasso in tasca.",
+  "problem": "Sente una voce che lo chiama tra le foglie ma non vede nessuno; ha voglia di rispondere e paura di farlo.",
+  "threshold_moment": "Invece di tornare indietro, Pino posa il sasso su un tronco e dice il proprio nome ad alta voce.",
+  "threshold_page": 9,
+  "resolution_mode": "La ghiandaia Ghita esce allo scoperto; non diventano amici di colpo, ma camminano un pezzo insieme.",
+  "closure_text": "[chiusura: immagine che sigilla, non spiega]",
+  "entry_point_type": "D",
+  "closure_type": 4,
+  "register": "medio",
+  "register_range": [
+    0.4,
+    0.6
+  ],
+  "time_span_arc": "un_pomeriggio",
+  "pages": 12,
+  "estimated_words": 883,
+  "world_flavor": "animali_del_bosco",
+  "setting_primary": "il bosco dietro la casa nuova",
+  "season": "primavera",
+  "palette_emotiva": "verdi teneri e gialli, luce nuova e mobile — pugno medio",
+  "protagonist": {
+    "name": "Pino",
+    "age": 6,
+    "kind": "riccio"
+  },
+  "companions": [
+    {
+      "name": "Ghita",
+      "kind": "ghiandaia"
+    }
+  ],
+  "presence": [
+    {
+      "who": "Pino",
+      "state": "attivo"
+    },
+    {
+      "who": "Ghita",
+      "state": "sfondo"
+    }
+  ],
+  "beat_plan": [
+    {
+      "beat": "apertura",
+      "pages": [
+        1,
+        1
+      ]
+    },
+    {
+      "beat": "distinguere",
+      "pages": [
+        2,
+        3
+      ]
+    },
+    {
+      "beat": "connettere",
+      "pages": [
+        4,
+        8
+      ]
+    },
+    {
+      "beat": "cambiare",
+      "pages": [
+        9,
+        11
+      ]
+    },
+    {
+      "beat": "chiusura",
+      "pages": [
+        12,
+        12
+      ]
+    }
+  ],
+  "seeds": [
+    {
+      "id": "seed_01",
+      "kind": "dettaglio_del_mondo",
+      "what": "il sasso liscio della casa vecchia",
+      "planted_page": 4,
+      "payoff_page": 11
+    },
+    {
+      "id": "seed_02",
+      "kind": "gesto",
+      "what": "un fischio a due note che Ghita fa tra le foglie",
+      "planted_page": 2,
+      "payoff_page": 9
+    }
+  ],
+  "debt": {
+    "kind": "promessa",
+    "what": "[promessa fatta presto, mantenuta vicino alla fine]",
+    "opened_page": 1,
+    "closed_page": 10
+  },
+  "recurring_image": null,
+  "descriptive_pauses_target": 1,
+  "banality_required": true,
+  "pugno": "Pino e' appena arrivato e non sa come si fa ad avere un amico in un posto nuovo",
+  "personal_detail": "tiene sempre in tasca un sasso liscio che ha portato dalla casa vecchia",
+  "voice": {
+    "narrator": {
+      "active_axes": [
+        "temperamento",
+        "lente_sensoriale"
+      ],
+      "cards": {
+        "temperamento": {
+          "value": "sospesa",
+          "fai": "un'immagine netta e rara per pagina, poi silenzio",
+          "evita": "accumulo di metafore, aggettivi doppi",
+          "lessico": "rarefatto, pochi elementi"
+        },
+        "lente_sensoriale": {
+          "value": "luce",
+          "fai": "come cade la luce, ombre, colori",
+          "lessico": "chiari, bagliori, penombra"
+        }
+      }
+    },
+    "characters": {
+      "Pino": {
+        "tic_verbale": {
+          "value": "ripete_una_parola",
+          "hint": "ha una parola che torna sempre"
+        },
+        "tempo": {
+          "value": "svelto",
+          "hint": "incalza"
+        },
+        "rivolgersi": {
+          "value": "diretto",
+          "hint": "guarda in faccia e dice"
+        }
+      },
+      "Ghita": {
+        "tic_verbale": {
+          "value": "conta_le_cose",
+          "hint": "enumera, mette in fila"
+        },
+        "tempo": {
+          "value": "lento",
+          "hint": "pause prima di parlare"
+        },
+        "rivolgersi": {
+          "value": "diretto",
+          "hint": "guarda in faccia e dice"
+        }
+      }
+    },
+    "places": {
+      "il bosco dietro la casa nuova": {
+        "senso_dominante": {
+          "value": "tatto",
+          "hint": "da una consistenza"
+        },
+        "qualita_luce": {
+          "value": "piena",
+          "hint": "luce piena"
+        },
+        "dettaglio": {
+          "kind": "un_odore",
+          "what": "[un odore ricorrente del luogo]"
+        }
+      }
+    }
+  },
+  "packs": []
+}

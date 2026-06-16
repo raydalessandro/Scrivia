@@ -1,0 +1,26 @@
+seed_version: 1
+language: it
+id: s01
+title: "Pino e la voce sotto le foglie"
+protagonist: {name: Pino, age: 6, kind: riccio}
+companions:
+  - {name: Ghita, kind: ghiandaia}
+world_flavor: animali_del_bosco
+setting:
+  primary: il bosco dietro la casa nuova
+  notes: famiglia appena trasferita, Pino non conosce nessuno
+theme: amicizia
+pugno: "Pino e' appena arrivato e non sa come si fa ad avere un amico in un posto nuovo"
+personal_detail: "tiene sempre in tasca un sasso liscio che ha portato dalla casa vecchia"
+length_pages: 12
+# spina narrativa (scritta in chat, personalizzata)
+spine:
+  premise: "Pino esce per la prima volta nel bosco dietro la casa nuova, con il sasso in tasca."
+  problem: "Sente una voce che lo chiama tra le foglie ma non vede nessuno; ha voglia di rispondere e paura di farlo."
+  threshold_moment: "Invece di tornare indietro, Pino posa il sasso su un tronco e dice il proprio nome ad alta voce."
+  resolution_mode: "La ghiandaia Ghita esce allo scoperto; non diventano amici di colpo, ma camminano un pezzo insieme."
+# contenuti opzionali pre-decisi (se vuoti, il motore mette degli slot da riempire)
+seed_contents:
+  - "il sasso liscio della casa vecchia"
+  - "un fischio a due note che Ghita fa tra le foglie"
+nonce: 70125

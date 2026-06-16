@@ -1,0 +1,256 @@
+# ============================================================================
+# seme_config.yaml — CANONE del motore SEME (storia breve illustrata)
+# ============================================================================
+# Versione potata e POPOLATA del saga_config di Isola. La differenza chiave:
+# qui gli enum dell'arco (lo "spine" che dà complessità senza costo di token)
+# sono DEFINITI, non slot TODO. Tutto il resto della macchina di saga (semi
+# cross-storia, debiti su 12 nodi, distribuzione presenze, cicli EAR) è stato
+# RIMOSSO: il seme produce UNA storia, e l'evoluzione vive DENTRO quella storia.
+#
+# Unica fonte di verità per enum, vincoli, grammatica marker, quote lessicali.
+# Gli script importano da qui (scripts/seme_canon.py), mai duplicano i valori.
+#
+# -- COSA NON STA QUI --------------------------------------------------------
+#   I valori QUALITATIVI (voce, pugno emotivo) stanno in canone/VOCE.md e
+#   canone/PATTERN_DA_BANDIRE.md. Qui solo cio' che una macchina verifica.
+# ============================================================================
+
+config_version: 1
+
+tool:
+  id: "seme"
+  title: "Seme — storie brevi illustrate"
+  language: "it"
+
+# --- Formato del prodotto ---------------------------------------------------
+story:
+  pages_min: 10
+  pages_max: 20
+  pages_default: 12
+  words_per_page_avg: 70          # stima per il budget prosa (storia breve)
+
+# ============================================================================
+# SPINE EAR — il motore d'arco (era 'TODO Fase 2', qui DEFINITO)
+# ============================================================================
+# I tre attributi sono lo scheletro invisibile della trasformazione. In una
+# storia per bambini si leggono come tre movimenti universali:
+#   distinguere = accorgersi, separare, vedere che qualcosa e' diverso/nuovo
+#   connettere  = avvicinarsi, legare, chiedere, unirsi
+#   cambiare    = qualcosa si trasforma, si attraversa una soglia, non torna com'era
+# REGOLA DURA: gli attributi non si nominano MAI nel testo pubblicato.
+attribute_dominant:               # l'attributo che pesa di piu' nella storia
+  - distinguere
+  - connettere
+  - cambiare
+
+deployment_level:                 # quanto si "dispiega" l'arco
+  - mono                          # un solo attributo domina, gli altri due co-presenti e quieti
+  - triadico                      # l'arco passa distinguere -> connettere -> cambiare
+
+# Bias tema -> attributo dominante (il seeding li puo' sovrascrivere a mano)
+theme_to_attribute:
+  paura: distinguere              # dare un nome a cio' che spaventa = distinguere
+  scoperta: distinguere
+  differenza: distinguere
+  curiosita: distinguere
+  amicizia: connettere
+  aiuto: connettere
+  gentilezza: connettere
+  appartenenza: connettere
+  perdita: cambiare
+  crescere: cambiare
+  cambiamento: cambiare
+  passaggio: cambiare
+
+# ============================================================================
+# GRAMMATICA STRUTTURALE — enum tenuti da Isola (legende = Carta Voce §2)
+# ============================================================================
+entry_point_type:                 # come si apre la storia (Carta §2.1)
+  A: "Dialogo in medias res"
+  B: "Immagine ferma"
+  C: "Voce esterna che irrompe"
+  D: "Pensiero interno del protagonista"
+  E: "Suono prima che immagine"
+  F: "Gesto isolato"
+
+closure_type:                     # come si chiude (Carta §2.3)
+  1: "Frase rituale di una figura saggia (enigmatica, mai esplicativa)"
+  2: "Immagine ferma senza dialogo"
+  3: "Gesto silenzioso del protagonista"
+  4: "Domanda non risposta, lasciata sospesa"
+  5: "Suono o sensazione fisica"
+  6: "Battuta laterale che taglia il momento alto"
+  7: "Colpo di coda: dopo la frase che sembra chiudere, una piccola aggiunta che ricolloca il peso"
+
+# Pesi di campionamento delle chiusure (kid-friendly, anti-spiegazione).
+# La 1 si attiva solo se c'e' una figura saggia nel cast.
+closure_weights: {1: 1, 2: 3, 3: 3, 4: 2, 5: 2, 6: 1, 7: 4}
+
+register:                         # densita' lirica (Carta §2.4)
+  basso: [0.2, 0.4]               # prosa quotidiana, frasi cortissime, pochissime metafore
+  medio: [0.4, 0.6]               # alternanza, qualche immagine
+  alto:  [0.6, 0.8]               # prosa piu' lirica, immagini concentrate
+  # molto_alto (0.8+) VIETATO
+
+# Bias eta' -> registro (il campionamento aggiunge varianza)
+age_to_register:
+  "0-5": basso
+  "6-8": medio
+  "9-12": alto
+
+time_span_arc:                    # arco temporale della storia
+  - un_pomeriggio
+  - un_giorno
+  - piu_giorni
+  - una_stagione                  # solo per temi di cambiamento/crescita
+
+# ============================================================================
+# HOOK VISIVI — uno per pagina (schema generico, da Isola)
+# ============================================================================
+hooks:
+  id_regex: "^p(\\d{2})$"
+  focal_action_max_words: 30
+  max_consecutive_same_type: 2    # anti-monotonia (piu' stretto di Isola: storia corta)
+  min_distinct_types: 4
+  types:
+    - panorama
+    - azione
+    - introspettivo
+    - atmosferico
+    - transizione
+    - interno
+    - dettaglio
+  composition_zones:
+    - sky_space
+    - ground_space
+    - side_space
+    - vignette
+    - corner_lower_left
+    - corner_lower_right
+  required_fields:
+    - hook_id
+    - page
+    - type
+    - beat
+    - characters_present
+    - location
+    - focal_action
+    - atmosphere
+    - palette
+    - composition_zone
+  # Tipo di hook preferito per beat (il campionamento sceglie dentro queste liste)
+  beat_type_bias:
+    apertura:   [panorama, atmosferico, interno]
+    distinguere: [dettaglio, introspettivo, azione]
+    connettere: [azione, interno, transizione]
+    cambiare:   [azione, atmosferico, panorama]
+    chiusura:   [atmosferico, dettaglio, panorama]
+
+# ============================================================================
+# SEMI INTRA-STORIA — il meccanismo dell'evoluzione (collassato da saga a storia)
+# ============================================================================
+# Un seme = un dettaglio concreto introdotto presto che viene ripreso/fiorisce
+# DOPO, nella stessa storia. E' cio' che fa "evolvere" la storia e la rende
+# non-template: un'eco interna. Il prosatore riempie il 'cosa'; il grafo fissa
+# DOVE pianta e DOVE paga.
+seeds:
+  count_short: 2                  # <= 12 pagine
+  count_long: 3                   # > 12 pagine
+  kinds: [oggetto, gesto, frase, suono, dettaglio_del_mondo]
+  plant_within_first_fraction: 0.40   # pianta nel primo 40% delle pagine
+  payoff_within_last_fraction: 0.30   # paga nell'ultimo 30%
+
+debt:                             # 0-1 micro-debito (promessa/domanda/preoccupazione)
+  probability: 0.5
+  kinds: [promessa, domanda, preoccupazione, oggetto_perso]
+
+recurring_image:                  # motivo visivo che torna 2-3 volte (opzionale)
+  probability: 0.5
+  occurrences: [2, 3]
+
+# ============================================================================
+# BUDGET DI VOCE (machine-checkable; la voce qualitativa sta in VOCE.md)
+# ============================================================================
+voice_budget:
+  descriptive_pauses:             # pause descrittive per storia (Carta §2.7)
+    short: 1                      # <= 12 pagine
+    long: 2
+  banality_required: true         # >=1 dettaglio non-funzionale, >=1 pensiero laterale, >=1 momento "vuoto"
+  banality_min_fraction: 0.15     # >=15% del testo in polo (-)
+
+# Quote lessicali anti-pattern-AI (proiezione machine-readable di
+# PATTERN_DA_BANDIRE.md). L'audit le legge con regex, senza LLM.
+# Generiche e di lingua: adatta alla lingua del prodotto.
+lexicon:
+  quotas:
+    - {pattern: "(?i)\\bin quel momento (capì|capisce)\\b", max_per_story: 0}
+    - {pattern: "(?i)\\bda quel giorno\\b", max_per_story: 0}
+    - {pattern: "(?i)\\bnon (sarebbe|fu) mai più lo stesso\\b", max_per_story: 0}
+    - {pattern: "(?i)\\b(imparò|imparA|capì) che\\b", max_per_story: 1}
+    - {pattern: "(?i)\\bil suo cuore\\b", max_per_story: 1}
+    - {pattern: "(?i)\\bun brivido\\b", max_per_story: 1}
+  # Famiglia di varianti di una cifra stilistica, tetto cumulativo sulla storia.
+  piano_family:
+    patterns: ["(?i)\\bsorrise\\b", "(?i)\\bsorri(de|sero)\\b"]
+    story_max: 3
+
+# ============================================================================
+# VOCE FRATTALE — assi discreti con CARTE (fai / evita-tic / lessico)
+# ============================================================================
+# La voce non e' un'etichetta ma la COMBINAZIONE di pochi assi ortogonali.
+# Ogni valore-asse porta una CARTA con 1-2 direttive: il guardrail anti-tic AI
+# sta DENTRO ogni asse, non solo globale. La stessa macchina, leggera, scende su
+# personaggi (idioletto) e luoghi (texture): complessita' gestita, costo zero
+# (solo campi discreti che il brief srotola). Disciplina anti-rigidita': max
+# 2-4 assi attivi per voce, carte che PLASMANO non dettano.
+voice:
+  narrator_active_axes: [2, 4]   # quanti assi attivi (campionati in questo range)
+
+  axes:
+    temperamento:
+      terrosa:      {fai: "verbi di gesto, oggetti chiamati col loro nome", evita: "parole-sentimento astratte (gioia, emozione, felicita')", lessico: "concreto, cose che si toccano"}
+      sospesa:      {fai: "un'immagine netta e rara per pagina, poi silenzio", evita: "accumulo di metafore, aggettivi doppi", lessico: "rarefatto, pochi elementi"}
+      ironica:      {fai: "una sdrammatizzazione dove il momento si gonfia", evita: "ironia su tutto: una per scena, non di piu'", lessico: "quotidiano, leggero"}
+      tenera:       {fai: "vicinanza calda al protagonista, gesti piccoli", evita: "sdolcinato, vezzeggiativi, 'piccolo/dolce' ripetuti", lessico: "domestico, affettuoso ma sobrio"}
+      cantilenante: {fai: "ritorni di suono, ritmo da conta", evita: "rima forzata che ingabbia", lessico: "musicale, ripetuto con misura"}
+    ritmo:
+      corte_secche:         {fai: "frasi brevi, una cosa per frase", evita: "tutte uguali: ogni tanto una piu' lunga"}
+      onda_lunga:           {fai: "periodi che respirano, coordinate", evita: "max una subordinata incassata e un 'e poi' a pagina"}
+      spezzato_paratattico: {fai: "scatti, punti fermi, pochi connettivi", evita: "telegrafico costante: alterna il passo"}
+    distanza:
+      dentro_la_testa:    {fai: "pensieri diretti del protagonista", evita: "spiegare cosa prova: mostrarlo dal pensiero"}
+      sulla_spalla:       {fai: "vicino ma fuori: gesti e mezzo-pensiero", evita: "onniscienza che entra in tutte le teste"}
+      sguardo_da_lontano: {fai: "scena vista da fuori, il mondo intorno", evita: "freddezza da telecamera: un dettaglio caldo ad ancorare"}
+    lente_sensoriale:
+      suono:        {fai: "cio' che si sente prima di cio' che si vede", lessico: "rumori, silenzi, voci"}
+      tatto:        {fai: "consistenze, temperature, peso nelle mani", lessico: "ruvido, liscio, freddo, caldo"}
+      luce:         {fai: "come cade la luce, ombre, colori", lessico: "chiari, bagliori, penombra"}
+      odore_sapore: {fai: "odori dell'aria, sapori in bocca", lessico: "resina, pane, terra bagnata"}
+    umorismo:
+      asciutto:         {fai: "comicita' di sottrazione, nei fatti non nei commenti", evita: "battute spiegate"}
+      battute_laterali: {fai: "un'osservazione di sbieco ogni tanto", evita: "macchietta: max una per scena"}
+      niente:           {fai: "nessuna battuta, serieta' dolce", evita: ""}
+
+  # bias leggeri di coerenza (il temperamento suggerisce una lente, non obbliga)
+  temperamento_lente_bias:
+    terrosa: tatto
+    sospesa: luce
+    cantilenante: suono
+
+  # --- FRATTALE: personaggi (idioletto = firma, non profilo) ---
+  character:
+    tic_verbale:                 # 1 per personaggio, DISTINTO tra personaggi
+      ripete_una_parola:   "ha una parola che torna sempre"
+      non_finisce_le_frasi: "lascia le frasi a meta'"
+      fa_domande:          "risponde con domande"
+      parla_per_immagini:  "dice le cose con piccole immagini"
+      conta_le_cose:       "enumera, mette in fila"
+      parla_poco:          "dice il minimo, una parola dove ne servirebbero dieci"
+    tempo: {lento: "pause prima di parlare", svelto: "incalza", a_scatti: "parte e si ferma"}
+    rivolgersi: {diretto: "guarda in faccia e dice", di_sbieco: "non si rivolge mai del tutto", cerimonioso: "tratta tutti con un po' di rito"}
+
+  # --- FRATTALE: luoghi (texture = firma sensoriale costante) ---
+  place:
+    senso_dominante: {suono: "da un suono", odore: "da un odore", tatto: "da una consistenza", luce: "da come ci sta la luce"}
+    qualita_luce: {bassa_e_netta: "luce bassa e netta", mobile: "luce che si muove", piena: "luce piena", obliqua: "luce obliqua che si abbassa"}
+    dettaglio_kind: [un_rumore, un_odore, una_cosa_che_si_muove, una_superficie]

@@ -1,0 +1,72 @@
+# seed.template.yaml — FORMA FISSA del seed. L'IA copia questo file e lo riempie.
+# Cio' che manca resta visibilmente vuoto: il validatore (validate_seed.py) lo
+# becca prima di costruire. Campi marcati [richiesto] sono duri; [opzionale] no.
+# Niente in questo file nomina lo scheletro EAR: quello lo decide il motore.
+
+seed_version: 1
+language: it                        # [richiesto] codice lingua
+
+id: s01                             # naming storia (di solito s01 per una singola)
+title: ""                          # [opzionale] provvisorio, si puo' cambiare dopo
+
+protagonist:
+  name: ""                         # [richiesto] nome del bambino o del personaggio
+  age:                             # [richiesto] eta' (guida registro ed entry)
+  kind: ""                         # [opzionale ma utile per le immagini] specie/tipo
+                                   #   (es. riccio, volpe, bambino) — rende preciso il SUBJECT
+
+companions:                        # [opzionale] comprimari
+  - {name: "", kind: ""}
+
+world_flavor: ""                   # [richiesto] una parola: animali_del_bosco | spazio |
+                                   #   sottomarino | citta | casa | fiabesco | ...
+
+setting:
+  primary: ""                      # [opzionale ma utile] luogo principale
+  notes: ""                        # [opzionale] contesto (es. "famiglia appena trasferita")
+
+theme: ""                          # [richiesto] chiave nota -> bias EAR:
+                                   #   paura/scoperta/curiosita/differenza -> distinguere
+                                   #   amicizia/aiuto/gentilezza/appartenenza -> connettere
+                                   #   perdita/crescere/cambiamento/passaggio -> cambiare
+
+pugno: ""                          # [richiesto] il cuore in una frase
+                                   #   (es. "si e' appena trasferito e non sa come si fa un amico")
+
+personal_detail: ""                # [opzionale] dettaglio vero del bambino da intessere
+                                   #   (un giocattolo, un'abitudine, un posto)
+
+length_pages: 12                   # [opzionale] 10-20, default 12
+packs: []                          # [opzionale] pacchetti attivi (es. [ninnananna]) — vedi packs/
+
+# --- SPINA NARRATIVA (la sola parte "contenuto": l'IA la scrive dalla chat) ---
+spine:
+  premise: ""                      # [richiesto] cosa mette in moto (scena d'avvio)
+  problem: ""                      # [richiesto] la difficolta', con dentro la tensione
+  threshold_moment: ""             # [richiesto] l'attraversamento: una DECISIONE o un GESTO
+  resolution_mode: ""              # [richiesto] come si MUOVE (non "si risolve")
+  closure: ""                      # [opzionale] direzione della chiusura (immagine che sigilla)
+
+# --- contenuti concreti opzionali (se vuoti, il motore mette slot da riempire) ---
+seed_contents: []                  # [opzionale] oggetti/gesti/suoni che possano tornare
+debt_content: ""                   # [opzionale] una promessa/domanda/oggetto perso
+recurring_motif: ""                # [opzionale] motivo visivo che torna
+place_detail: ""                   # [opzionale] dettaglio sensoriale ricorrente del luogo
+
+# --- override manuali della grammatica (vuoti = campionati dal motore) ---
+overrides:
+  attribute_dominant:              # distinguere | connettere | cambiare
+  deployment_level:                # mono | triadico
+  entry_point_type:                # A-F
+  closure_type:                    # 1-7
+  register:                        # basso | medio | alto
+  time_span_arc:                   # un_pomeriggio | un_giorno | piu_giorni | una_stagione
+  # crocette di VOCE (opzionali, 2-3 assi): l'umano spunta, il resto lo campiona il nonce
+  voice:
+    temperamento:                  # terrosa | sospesa | ironica | tenera | cantilenante
+    ritmo:                         # corte_secche | onda_lunga | spezzato_paratattico
+    distanza:                      # dentro_la_testa | sulla_spalla | sguardo_da_lontano
+    lente_sensoriale:              # suono | tatto | luce | odore_sapore
+    umorismo:                      # asciutto | battute_laterali | niente
+
+nonce:                             # vuoto = storia diversa ogni volta; un numero = riproducibile

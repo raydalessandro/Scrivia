@@ -1,0 +1,270 @@
+[
+  {
+    "hook_id": "p01",
+    "page": 1,
+    "type": "panorama",
+    "beat": "apertura",
+    "characters_present": [
+      "Pino"
+    ],
+    "location": "il bosco dietro la casa nuova",
+    "focal_action": "Pino: si apre la scena (apre: [promessa fatta presto, mantenuta vicino alla fine])",
+    "atmosphere": "apertura · verdi teneri e gialli, luce nuova e mobile — pugno medio",
+    "palette": "verdi teneri e gialli, luce nuova e mobile — pugno medio",
+    "composition_zone": "sky_space",
+    "markers": {
+      "is_entry": true,
+      "is_closure": false,
+      "is_threshold": false,
+      "seeds_planted": [],
+      "seeds_payoff": [],
+      "entry_point_type": "D"
+    }
+  },
+  {
+    "hook_id": "p02",
+    "page": 2,
+    "type": "azione",
+    "beat": "distinguere",
+    "characters_present": [
+      "Pino"
+    ],
+    "location": "il bosco dietro la casa nuova",
+    "focal_action": "Pino: si accorge / osserva (introduce: un fischio a due note che Ghita fa tra le foglie)",
+    "atmosphere": "distinguere · verdi teneri e gialli, luce nuova e mobile — pugno medio",
+    "palette": "verdi teneri e gialli, luce nuova e mobile — pugno medio",
+    "composition_zone": "side_space",
+    "markers": {
+      "is_entry": false,
+      "is_closure": false,
+      "is_threshold": false,
+      "seeds_planted": [
+        "seed_02"
+      ],
+      "seeds_payoff": []
+    }
+  },
+  {
+    "hook_id": "p03",
+    "page": 3,
+    "type": "dettaglio",
+    "beat": "distinguere",
+    "characters_present": [
+      "Pino"
+    ],
+    "location": "il bosco dietro la casa nuova",
+    "focal_action": "Pino: si accorge / osserva",
+    "atmosphere": "distinguere · verdi teneri e gialli, luce nuova e mobile — pugno medio",
+    "palette": "verdi teneri e gialli, luce nuova e mobile — pugno medio",
+    "composition_zone": "vignette",
+    "markers": {
+      "is_entry": false,
+      "is_closure": false,
+      "is_threshold": false,
+      "seeds_planted": [],
+      "seeds_payoff": []
+    }
+  },
+  {
+    "hook_id": "p04",
+    "page": 4,
+    "type": "interno",
+    "beat": "connettere",
+    "characters_present": [
+      "Pino"
+    ],
+    "location": "il bosco dietro la casa nuova",
+    "focal_action": "Pino: si avvicina / chiede / tende verso (introduce: il sasso liscio della casa vecchia)",
+    "atmosphere": "connettere · verdi teneri e gialli, luce nuova e mobile — pugno medio",
+    "palette": "verdi teneri e gialli, luce nuova e mobile — pugno medio",
+    "composition_zone": "vignette",
+    "markers": {
+      "is_entry": false,
+      "is_closure": false,
+      "is_threshold": false,
+      "seeds_planted": [
+        "seed_01"
+      ],
+      "seeds_payoff": []
+    }
+  },
+  {
+    "hook_id": "p05",
+    "page": 5,
+    "type": "azione",
+    "beat": "connettere",
+    "characters_present": [
+      "Pino",
+      "Ghita"
+    ],
+    "location": "il bosco dietro la casa nuova",
+    "focal_action": "Pino: si avvicina / chiede / tende verso",
+    "atmosphere": "connettere · verdi teneri e gialli, luce nuova e mobile — pugno medio",
+    "palette": "verdi teneri e gialli, luce nuova e mobile — pugno medio",
+    "composition_zone": "side_space",
+    "markers": {
+      "is_entry": false,
+      "is_closure": false,
+      "is_threshold": false,
+      "seeds_planted": [],
+      "seeds_payoff": []
+    }
+  },
+  {
+    "hook_id": "p06",
+    "page": 6,
+    "type": "transizione",
+    "beat": "connettere",
+    "characters_present": [
+      "Pino",
+      "Ghita"
+    ],
+    "location": "il bosco dietro la casa nuova",
+    "focal_action": "Pino: si avvicina / chiede / tende verso",
+    "atmosphere": "connettere · verdi teneri e gialli, luce nuova e mobile — pugno medio",
+    "palette": "verdi teneri e gialli, luce nuova e mobile — pugno medio",
+    "composition_zone": "ground_space",
+    "markers": {
+      "is_entry": false,
+      "is_closure": false,
+      "is_threshold": false,
+      "seeds_planted": [],
+      "seeds_payoff": []
+    }
+  },
+  {
+    "hook_id": "p07",
+    "page": 7,
+    "type": "azione",
+    "beat": "connettere",
+    "characters_present": [
+      "Pino",
+      "Ghita"
+    ],
+    "location": "il bosco dietro la casa nuova",
+    "focal_action": "Pino: si avvicina / chiede / tende verso",
+    "atmosphere": "connettere · verdi teneri e gialli, luce nuova e mobile — pugno medio",
+    "palette": "verdi teneri e gialli, luce nuova e mobile — pugno medio",
+    "composition_zone": "side_space",
+    "markers": {
+      "is_entry": false,
+      "is_closure": false,
+      "is_threshold": false,
+      "seeds_planted": [],
+      "seeds_payoff": []
+    }
+  },
+  {
+    "hook_id": "p08",
+    "page": 8,
+    "type": "interno",
+    "beat": "connettere",
+    "characters_present": [
+      "Pino"
+    ],
+    "location": "il bosco dietro la casa nuova",
+    "focal_action": "Pino: si avvicina / chiede / tende verso",
+    "atmosphere": "connettere · verdi teneri e gialli, luce nuova e mobile — pugno medio",
+    "palette": "verdi teneri e gialli, luce nuova e mobile — pugno medio",
+    "composition_zone": "side_space",
+    "markers": {
+      "is_entry": false,
+      "is_closure": false,
+      "is_threshold": false,
+      "seeds_planted": [],
+      "seeds_payoff": []
+    }
+  },
+  {
+    "hook_id": "p09",
+    "page": 9,
+    "type": "panorama",
+    "beat": "cambiare",
+    "characters_present": [
+      "Pino",
+      "Ghita"
+    ],
+    "location": "il bosco dietro la casa nuova",
+    "focal_action": "Pino: qualcosa si muove / attraversa (ritorna, con peso diverso: un fischio a due note che Ghita fa tra le foglie) (SOGLIA: il punto in cui qualcosa cambia davvero)",
+    "atmosphere": "cambiare · verdi teneri e gialli, luce nuova e mobile — pugno medio",
+    "palette": "verdi teneri e gialli, luce nuova e mobile — pugno medio",
+    "composition_zone": "ground_space",
+    "markers": {
+      "is_entry": false,
+      "is_closure": false,
+      "is_threshold": true,
+      "seeds_planted": [],
+      "seeds_payoff": [
+        "seed_02"
+      ]
+    }
+  },
+  {
+    "hook_id": "p10",
+    "page": 10,
+    "type": "azione",
+    "beat": "cambiare",
+    "characters_present": [
+      "Pino",
+      "Ghita"
+    ],
+    "location": "il bosco dietro la casa nuova",
+    "focal_action": "Pino: qualcosa si muove / attraversa (chiude: [promessa fatta presto, mantenuta vicino alla fine])",
+    "atmosphere": "cambiare · verdi teneri e gialli, luce nuova e mobile — pugno medio",
+    "palette": "verdi teneri e gialli, luce nuova e mobile — pugno medio",
+    "composition_zone": "side_space",
+    "markers": {
+      "is_entry": false,
+      "is_closure": false,
+      "is_threshold": false,
+      "seeds_planted": [],
+      "seeds_payoff": []
+    }
+  },
+  {
+    "hook_id": "p11",
+    "page": 11,
+    "type": "azione",
+    "beat": "cambiare",
+    "characters_present": [
+      "Pino",
+      "Ghita"
+    ],
+    "location": "il bosco dietro la casa nuova",
+    "focal_action": "Pino: qualcosa si muove / attraversa (ritorna, con peso diverso: il sasso liscio della casa vecchia)",
+    "atmosphere": "cambiare · verdi teneri e gialli, luce nuova e mobile — pugno medio",
+    "palette": "verdi teneri e gialli, luce nuova e mobile — pugno medio",
+    "composition_zone": "ground_space",
+    "markers": {
+      "is_entry": false,
+      "is_closure": false,
+      "is_threshold": false,
+      "seeds_planted": [],
+      "seeds_payoff": [
+        "seed_01"
+      ]
+    }
+  },
+  {
+    "hook_id": "p12",
+    "page": 12,
+    "type": "dettaglio",
+    "beat": "chiusura",
+    "characters_present": [
+      "Pino"
+    ],
+    "location": "il bosco dietro la casa nuova",
+    "focal_action": "Pino: si chiude la scena",
+    "atmosphere": "chiusura · verdi teneri e gialli, luce nuova e mobile — pugno medio",
+    "palette": "verdi teneri e gialli, luce nuova e mobile — pugno medio",
+    "composition_zone": "vignette",
+    "markers": {
+      "is_entry": false,
+      "is_closure": true,
+      "is_threshold": false,
+      "seeds_planted": [],
+      "seeds_payoff": [],
+      "closure_type": 4
+    }
+  }
+]

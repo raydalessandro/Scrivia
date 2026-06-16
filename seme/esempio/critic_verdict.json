@@ -1,0 +1,17 @@
+{
+  "verdict": "PASS",
+  "checks": {
+    "scheletro_invisibile":    {"pass": true, "note": "i tre movimenti non sono mai nominati in astratto"},
+    "niente_moralina":         {"pass": true, "note": "nessun personaggio o narratore spiega il senso; la chiusura sigilla con un'immagine"},
+    "chiusura_non_esplicativa":{"pass": true, "note": "closure 4 rispettata: 'voleva dire domani? non lo sapeva'"},
+    "soglia_come_gesto":       {"pass": true, "note": "p9 e' gesto concreto (posa il sasso, dice il nome), non presa di coscienza raccontata"},
+    "semi_pagati":             {"pass": true, "note": "fischio p2->p9 (da mistero a invito); sasso p4->p11 (da conforto della casa vecchia a segno del posto nuovo): entrambi tornano con peso diverso"},
+    "registro":                {"pass": true, "note": "medio: frasi brevi, poche immagini, coerente"},
+    "banalita":                {"pass": true, "note": "formica p3 (non-funzionale), pensiero laterale p8, momento vuoto p10"},
+    "dettaglio_personale":     {"pass": true, "note": "il sasso e' intessuto, mai esibito come 'elemento speciale'"},
+    "frasi_da_mille_storie":   {"pass": true, "note": "nessuna riga genericamente intercambiabile"}
+  },
+  "page_flags": [
+    {"page": 8, "severity": "soft", "issue": "'questa era la differenza' e' al limite: regge perche' e' un contrasto concreto casa-vecchia/casa-nuova, non il concetto astratto. Tenere d'occhio in revisione."}
+  ]
+}

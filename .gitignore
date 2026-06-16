@@ -1,0 +1,24 @@
+# dipendenze
+/node_modules
+/.pnp
+.pnp.*
+
+# build
+/.next/
+/out/
+/build
+next-env.d.ts
+
+# ambiente
+.env*.local
+.env
+
+# log e cache
+*.log
+.DS_Store
+.vercel
+*.tsbuildinfo
+
+# python (motore di riferimento)
+seme/**/__pycache__/
+seme/.pytest_cache/
