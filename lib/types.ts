@@ -154,10 +154,42 @@ export interface LedgerEvent {
   durationMs?: number;
 }
 
+// --- Memoria della Fase 1: chat + comandi (può durare settimane) ----------
+export interface ChatMsg {
+  id: string;
+  who: "claude" | "you";
+  text: string;
+  ts: string;
+  /** Entità in focus quando il messaggio è stato scritto (l'IA "sa" di cosa parli). */
+  focus?: FocusRef;
+  /** Comandi che questo turno ha eseguito (rende l'IA un agente, non un compilatore). */
+  commands?: string[];
+}
+
+/** Riferimento a un'entità selezionabile: l'umano la tocca, diventa il contesto dell'IA. */
+export interface FocusRef {
+  kind: "protagonist" | "companion" | "spine" | "voice" | "node" | "page";
+  /** chiave/identificatore dentro la storia (es. nome del companion, campo della spina). */
+  ref: string;
+  label: string;
+}
+
+/** Esecuzione di un comando del registry (la traccia che alimenterà l'audit MCP). */
+export interface CommandRun {
+  ts: string;
+  name: string;
+  params?: Record<string, unknown>;
+  by: "you" | "claude";
+  summary: string;
+  cached?: boolean;
+  durationMs?: number;
+}
+
 // --- La storia: tutti gli artefatti insieme ------------------------------
 export interface Story {
   id: string;
   createdAt: string;
+  updatedAt?: string;
   title: string;
   stage: StageId;
   seed: Seed;
@@ -168,4 +200,7 @@ export interface Story {
   critic?: CriticVerdict;
   manus?: ManusPrompt[];
   ledger: LedgerEvent[];
+  /** Fase 1 persistente: la conversazione di seeding e i comandi eseguiti. */
+  seedingChat?: ChatMsg[];
+  commandLog?: CommandRun[];
 }
