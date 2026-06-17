@@ -12,7 +12,7 @@ Il processo resta chiaro, con i tempi, fase per fase.
 
 | # | Fase | Chi lavora | Cosa esce |
 |---|------|-----------|-----------|
-| 1 | **Progetta la storia** | Tu (intake) → IA (chat), poi catena deterministica | grafo, brief, prompt immagini |
+| 1 | **Progetta la storia** | Tu (modo guidato *o* intake) → IA (chat), poi catena deterministica | grafo, brief, prompt immagini |
 | 2 | **Scrivi la prosa** ✋ | IA scrive + critic controlla | pagine già verificate |
 | 3 | **Le illustrazioni** ✋ | Tu confermi le reference → Manus (in futuro: script TS) | reference canoniche + un'immagine per pagina |
 | 4 | **Monta il libro** | deterministico | PDF A5 |
@@ -51,6 +51,9 @@ Prima delle pagine, ogni personaggio/luogo ha una **reference canonica**:
 - **`lib/reference.ts`** + **`lib/pagePrompts.ts`** + **`lib/stylesheet.ts`** —
   Passo 0 (record d'entità, foglio di reference, gate) e i prompt-pagina veri
   che allegano le reference confermate.
+- **`components/phases/SeedingGame.tsx`** + **`lib/seedFromGame.ts`** — la Fase 1
+  come **gioco** (modo guidato) e il mapping `GameState → Seed` (movimento EAR
+  invisibile, override di grammatica, voci-personaggio + `narratorBrief`).
 - **`lib/commands.ts`** — registry dei comandi: catalogo tipizzato di azioni
   eseguibili. **Una sola fonte di verità**: UI e IA passano di lì (log + cache).
   `toMcpTools()` lo esporta in stile MCP-tool (base della futura MCP).
