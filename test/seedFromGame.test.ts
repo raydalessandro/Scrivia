@@ -3,7 +3,14 @@ import { buildNode, buildPagePlan, checkNode, checkHooks } from "../lib/engine";
 import type { GameState } from "../components/phases/SeedingGame";
 import type { Hook, SeedExt } from "../lib/engineTypes";
 
+import { describe, it, expect } from "vitest";
+
 declare const process: { exit(code?: number): never };
+
+// Avvolto in describe/it (Vitest). Logica e assert IDENTICI allo script originale;
+// l'uscita finale è sostituita da expect(bad).toBe(0).
+describe("seedFromGame — mapping gioco → Seed (B3)", () => {
+it("voce a-orecchio · cast · override riflessi · ref-mode", () => {
 let bad = 0;
 const ok = (m: string) => console.log("  ✓ " + m);
 const ko = (m: string) => { console.error("  ✗ " + m); bad++; };
@@ -67,5 +74,8 @@ const refSeed = seedFromGame(refGame);
   ? ok(`ref-mode: narratorBrief="${refSeed.narratorBrief}", voice vuota (motore campiona)`) : ko(`ref-mode inatteso: brief=${refSeed.narratorBrief} voice=${JSON.stringify(refSeed.voice)}`);
 
 console.log("");
-if (bad) { console.error(`✗ B3 smoke: ${bad} falliti`); process.exit(1); }
+expect(bad, "B3 smoke: controlli falliti (vedi log sopra)").toBe(0);
 console.log("✓ B3 smoke: seedFromGame mappa correttamente e produce un Seed valido per il motore");
+
+});
+});

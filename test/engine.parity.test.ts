@@ -10,8 +10,13 @@ import { buildNode, extractHooks, checkNode, checkHooks } from "../lib/engine";
 import type { Seed } from "../lib/types";
 import canon from "../lib/canon.json";
 
-// ambient: lo script gira con tsx (Node); evita la dipendenza da @types/node nel typecheck.
-declare const process: { exit(code?: number): never };
+import { describe, it, expect } from "vitest";
+
+// Avvolto in describe/it per girare sotto `npm test` (Vitest). La logica e gli
+// assert qui sotto sono IDENTICI allo script originale: solo l'esito finale
+// (process.exit) è sostituito da expect(failures).toBe(0).
+describe("engine — parità & invarianti (M1)", () => {
+it("fuzz invarianti · determinismo · 3 fix (attribute/threshold/register)", () => {
 
 let failures = 0;
 const fail = (msg: string) => { console.error("  ✗ " + msg); failures++; };
@@ -125,5 +130,8 @@ console.log("[5] Fix register (varianza tra storie, valori validi)");
 
 // ---- esito ----
 console.log("");
-if (failures) { console.error(`✗ PARITÀ: ${failures} blocchi falliti`); process.exit(1); }
+expect(failures, "PARITÀ: blocchi falliti (vedi log sopra)").toBe(0);
 console.log("✓ PARITÀ: tutti i blocchi superati (M1)");
+
+});
+});

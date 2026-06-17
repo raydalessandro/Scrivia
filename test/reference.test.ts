@@ -4,7 +4,14 @@ import { buildPagePrompts, bookStylesheet, CONSISTENCY_BLOCK, allReferencesReady
 import type { Seed, EntityRefRecord } from "../lib/types";
 import type { Hook } from "../lib/engineTypes";
 
+import { describe, it, expect } from "vitest";
+
 declare const process: { exit(code?: number): never };
+
+// Avvolto in describe/it (Vitest). Logica e assert IDENTICI allo script originale;
+// l'uscita finale è sostituita da expect(bad).toBe(0).
+describe("reference — flusso Passo 0 → prompt-pagina (B2)", () => {
+it("derive entità · gate · reference-sheet · page prompts", () => {
 let bad = 0;
 const ok = (m: string) => console.log("  ✓ " + m);
 const ko = (m: string) => { console.error("  ✗ " + m); bad++; };
@@ -68,5 +75,8 @@ allReferencesReady(manus) === true ? ok("allReferencesReady = true (corretto)") 
 (bookStylesheet(node).includes("ART STYLE") && CONSISTENCY_BLOCK.includes("BINDING")) ? ok("blocchi fissi (STYLESHEET + CONSISTENCY) ok") : ko("blocchi fissi mancanti");
 
 console.log("");
-if (bad) { console.error(`✗ B2 smoke: ${bad} falliti`); process.exit(1); }
+expect(bad, "B2 smoke: controlli falliti (vedi log sopra)").toBe(0);
 console.log("✓ B2 smoke: flusso reference → prompt verificato");
+
+});
+});
