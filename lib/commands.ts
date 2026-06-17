@@ -135,6 +135,13 @@ export const COMMANDS: CommandDef[] = [
     run: (s, p) => { const n = touch(clone(s)); n.seed.length_pages = Math.max(10, Math.min(20, Number(p.pages) || 12)); return { story: n, summary: `Lunghezza → ${n.seed.length_pages} pagine` }; },
   },
 
+  {
+    name: "set_intake_notes", title: "Appunti liberi",
+    description: "Salva gli appunti liberi dell'intake: tutto ciò che l'umano vuole, contesto che l'IA riceve all'avvio.",
+    category: "seed", params: [{ name: "notes", type: "string", required: true, description: "appunti" }],
+    run: (s, p) => { const n = touch(clone(s)); n.intakeNotes = p.notes; return { story: n, summary: `Appunti salvati (${(p.notes || "").length} caratteri)` }; },
+  },
+
   // --- SPINA --------------------------------------------------------------
   {
     name: "set_spine", title: "Spina narrativa",

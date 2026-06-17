@@ -26,10 +26,6 @@ export function Phase1Seeding({ story, update, log, goPhase }: PhaseProps) {
     return r;
   }
 
-  function appendMessages(...msgs: ChatMsg[]) {
-    update((s) => ({ ...s, seedingChat: [...(s.seedingChat ?? []), ...msgs] }));
-  }
-
   // L'assistente: interpreta il testo (con il focus) → esegue comandi → risponde.
   // Interim finché non si collega la tua IA/MCP: stessa identica superficie (i comandi).
   function send(text: string) {
@@ -65,6 +61,31 @@ export function Phase1Seeding({ story, update, log, goPhase }: PhaseProps) {
 
   const v = validateSeed(story.seed);
   const built = !!story.node;
+
+  // Avvia la chat partendo dalla bozza: l'IA riceve già lo scheletro.
+  const started = (story.seedingChat?.length ?? 0) > 0 || !!story.chatStarted || built;
+  const [mode, setMode] = useState<"intake" | "studio">(started ? "studio" : "intake");
+
+  function startChat() {
+    const opening = composeOpening(story);
+    const botMsg: ChatMsg = { id: rid(), who: "claude", text: opening, ts: new Date().toISOString() };
+    update((s) => ({ ...s, chatStarted: true, seedingChat: [...(s.seedingChat ?? []), botMsg] }));
+    setMode("studio");
+  }
+
+  // FASE 1a — Intake: la griglia che l'umano compila a mano (zero token).
+  if (mode === "intake" && !built) {
+    return (
+      <Intake
+        story={story}
+        focus={focus}
+        setFocus={setFocus}
+        run={run}
+        onStart={startChat}
+        errors={v.errors}
+      />
+    );
+  }
 
   return (
     <div className="grid gap-4 lg:grid-cols-[1fr_minmax(320px,400px)]">
@@ -148,6 +169,10 @@ export function Phase1Seeding({ story, update, log, goPhase }: PhaseProps) {
               </div>
             ))}
           </div>
+        </Section>
+
+        <Section title="Appunti liberi" focus={focus} setFocus={setFocus} focusKey={mkFocus("spine", "notes", "Appunti")}>
+          <Field label="" value={story.intakeNotes ?? ""} multiline onSave={(val) => run("set_intake_notes", { notes: val })} placeholder="appunti che l'IA legge come contesto…" />
         </Section>
 
         {/* Il click / il grafo */}
@@ -392,6 +417,138 @@ function BuiltGraph({ story, setFocus, focus, goPhase }: { story: Story; setFocu
 
 function KV({ k, v }: { k: string; v: string }) {
   return (<div className="flex flex-col"><span className="text-[10px] font-semibold uppercase tracking-wider text-ink-soft">{k}</span><span className="text-ink">{v}</span></div>);
+}
+
+// ---------------------------------------------------------------------------
+// Intake: la griglia che l'umano compila PRIMA della chat (zero token).
+// L'IA poi parte da questa bozza invece che da zero.
+// ---------------------------------------------------------------------------
+type RunFn = (name: string, params: Record<string, unknown>, by?: "you" | "claude") => unknown;
+
+function Intake({ story, focus, setFocus, run, onStart, errors }: {
+  story: Story; focus: FocusRef | null; setFocus: (f: FocusRef | null) => void; run: RunFn; onStart: () => void; errors: string[];
+}) {
+  const seed = story.seed;
+  return (
+    <div className="space-y-4 pb-28">
+      <div className="rounded-2xl border border-line bg-paper-2 p-4">
+        <h2 className="serif text-xl font-semibold">La bozza della storia</h2>
+        <p className="mt-1 text-sm text-ink-soft">
+          Compili quello che già sai — lasci vuoto ciò che vuoi decidere insieme all'IA.
+          Niente di tutto questo costa token: l'IA partirà <b>da qui</b>, non da zero.
+        </p>
+      </div>
+
+      <CompletenessBar story={story} />
+
+      <Section title="Protagonista" focus={focus} setFocus={setFocus}>
+        <div className="grid grid-cols-2 gap-2">
+          <Field label="Nome" value={seed.protagonist.name} onSave={(v) => run("set_protagonist", { name: v })} />
+          <Field label="Età" value={seed.protagonist.age?.toString() ?? ""} onSave={(v) => run("set_protagonist", { age: parseInt(v) || null })} />
+          <Field label="Tipo / specie" value={seed.protagonist.kind} onSave={(v) => run("set_protagonist", { kind: v })} className="col-span-2" placeholder="riccio, bambina, robot…" />
+        </div>
+      </Section>
+
+      <Section title="Mondo & ambientazione" focus={focus} setFocus={setFocus}>
+        <div className="space-y-2">
+          <SelectField label="Mondo" value={seed.world_flavor} options={WORLD_FLAVORS} onSave={(v) => run("set_world", { world_flavor: v })} />
+          <Field label="Luogo principale" value={seed.setting.primary} onSave={(v) => run("set_setting", { primary: v })} placeholder="il bosco dietro la casa nuova" />
+          <Field label="Contesto" value={seed.setting.notes} onSave={(v) => run("set_setting", { notes: v })} placeholder="es. famiglia appena trasferita" />
+        </div>
+      </Section>
+
+      <Section title="Tema" focus={focus} setFocus={setFocus}>
+        <Field label="" value={seed.theme} onSave={(v) => run("set_theme", { theme: v })} placeholder="paura, amicizia, perdita, scoperta…" />
+        {seed.theme && (
+          <p className="mt-1 text-xs text-ink-soft">
+            EAR: {THEME_TO_ATTRIBUTE[seed.theme] ? <b>{ATTRIBUTE_LABEL[THEME_TO_ATTRIBUTE[seed.theme]]}</b> : <span className="text-github">non mappato — lo sceglie il motore</span>} <span className="opacity-70">(mai nel testo)</span>
+          </p>
+        )}
+      </Section>
+
+      <Section title="Il cuore & il dettaglio vero" focus={focus} setFocus={setFocus}>
+        <Field label="Pugno" value={seed.pugno} multiline onSave={(v) => run("set_pugno", { pugno: v })} placeholder="cosa succede / cosa sente, in una frase" />
+        <Field label="Dettaglio personale" value={seed.personal_detail} multiline onSave={(v) => run("set_personal_detail", { detail: v })} placeholder="un oggetto, un'abitudine vera del bambino" className="mt-2" />
+      </Section>
+
+      <Section title="Cast" focus={focus} setFocus={setFocus}>
+        <div className="space-y-1.5">
+          {seed.companions.map((c) => (
+            <EntityChip key={c.name} label={`${c.name}${c.kind ? ` · ${c.kind}` : ""}`} active={false} onSelect={() => {}} onRemove={() => run("remove_companion", { name: c.name })} />
+          ))}
+          <AddInline placeholder="aggiungi personaggio…" onAdd={(name) => run("add_companion", { name })} />
+        </div>
+      </Section>
+
+      <Section title="Lunghezza" focus={focus} setFocus={setFocus}>
+        <div className="flex items-center gap-3">
+          <input type="range" min={10} max={20} value={seed.length_pages} onChange={(e) => run("set_length", { pages: +e.target.value })} className="flex-1 accent-claude" />
+          <span className="w-20 text-sm tabular-nums">{seed.length_pages} pagine</span>
+        </div>
+      </Section>
+
+      <Section title="Spina narrativa — opzionale" focus={focus} setFocus={setFocus}>
+        <p className="mb-2 text-xs text-ink-soft">Se la sai già, scrivila. Altrimenti lasciala vuota: la costruisci con l'IA, è la parte dove serve davvero.</p>
+        <div className="space-y-2">
+          {SPINE.map((f) => (
+            <Field key={f.key} label={f.label} value={(seed.spine as any)[f.key]} multiline onSave={(v) => run("set_spine", { field: f.key, value: v })} placeholder={f.hint} />
+          ))}
+        </div>
+      </Section>
+
+      <Section title="Appunti liberi" focus={focus} setFocus={setFocus}>
+        <p className="mb-2 text-xs text-ink-soft">Scarica qui qualsiasi cosa — frammenti, idee, no. L'IA li legge all'avvio.</p>
+        <Field label="" value={story.intakeNotes ?? ""} multiline onSave={(v) => run("set_intake_notes", { notes: v })} placeholder="«vorrei un finale agrodolce…», «niente animali parlanti», un ricordo…" />
+      </Section>
+
+      {/* CTA sticky in basso: avvia la chat partendo dalla bozza */}
+      <div className="fixed inset-x-0 bottom-0 z-20 border-t border-line bg-paper/95 px-4 py-3 backdrop-blur" style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom))" }}>
+        <div className="mx-auto flex max-w-6xl items-center gap-3">
+          <p className="hidden flex-1 text-xs text-ink-soft sm:block">
+            {errors.length === 0 ? "Bozza pronta — l'IA può rifinire e costruire." : `${errors.length} campi ancora vuoti: l'IA ti aiuterà a completarli.`}
+          </p>
+          <button onClick={onStart} className="flex-1 rounded-xl bg-ink py-3 text-sm font-semibold text-paper sm:flex-none sm:px-8">
+            Inizia con l'IA →
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** Primo messaggio dell'IA, generato dalla bozza (deterministico, zero token).
+ *  È anche, letteralmente, lo scheletro che passeremo all'API come contesto. */
+function composeOpening(story: Story): string {
+  const s = story.seed;
+  const have: string[] = [];
+  if (s.protagonist.name) have.push(`${s.protagonist.name}${s.protagonist.age ? `, ${s.protagonist.age} anni` : ""}${s.protagonist.kind ? ` (${s.protagonist.kind})` : ""}`);
+  if (s.world_flavor) have.push(`mondo: ${s.world_flavor.replace(/_/g, " ")}`);
+  if (s.setting.primary) have.push(s.setting.primary);
+  if (s.theme) have.push(`tema: ${s.theme}`);
+  if (s.companions.length) have.push(`con ${s.companions.map((c) => c.name).join(", ")}`);
+
+  const gaps: string[] = [];
+  if (!s.protagonist.name) gaps.push("come si chiama il protagonista");
+  if (s.protagonist.age == null) gaps.push("che età ha");
+  if (!s.world_flavor) gaps.push("in che mondo siamo");
+  if (!s.theme) gaps.push("qual è il tema");
+  if (!s.pugno) gaps.push("il cuore della storia in una frase");
+  const spineMissing = !s.spine.premise || !s.spine.threshold_moment;
+
+  let msg = "";
+  if (have.length) msg += `Ho letto la tua bozza — ${have.join(" · ")}. `;
+  else msg += "Partiamo dalla tua bozza. ";
+  if (s.pugno) msg += `Il cuore: «${s.pugno}». `;
+  if (story.intakeNotes?.trim()) msg += `Ho presente anche i tuoi appunti. `;
+
+  if (gaps.length) {
+    msg += `Per partire bene mi manca ${gaps.length > 1 ? "qualche cosa" : "una cosa"}: ${gaps.slice(0, 3).join("; ")}?`;
+  } else if (spineMissing) {
+    msg += `Abbiamo le basi. Vuoi che ti proponga io la spina — premessa, problema, la soglia (il gesto che attraversa) e come si chiude — così la limiamo insieme?`;
+  } else {
+    msg += `C'è già tutto, anche la spina. La rifiniamo dove vuoi, oppure costruiamo subito il grafo: dimmi tu.`;
+  }
+  return msg;
 }
 
 // ---------------------------------------------------------------------------

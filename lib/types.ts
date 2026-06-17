@@ -203,4 +203,8 @@ export interface Story {
   /** Fase 1 persistente: la conversazione di seeding e i comandi eseguiti. */
   seedingChat?: ChatMsg[];
   commandLog?: CommandRun[];
+  /** Appunti liberi dell'intake: l'umano scarica qui tutto, l'IA li riceve come contesto. */
+  intakeNotes?: string;
+  /** La chat con l'IA è stata avviata (si parte dalla bozza dell'intake). */
+  chatStarted?: boolean;
 }
