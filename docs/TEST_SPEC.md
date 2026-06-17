@@ -129,10 +129,10 @@ ogni provider e parsano la risposta in forma neutra.
 
 | # | Caso | Stato | Dove |
 |---|---|---|---|
-| 5.1 | `deriveStages`: transizioni done/ready/gate/locked coerenti con gli artefatti presenti | ⬜ | da scrivere |
-| 5.2 | `currentPhase`: seeding→immagini→libro secondo prose/manus/stage | ⬜ | da scrivere |
-| 5.3 | `phaseReached` (Workspace): gating delle tab per artefatto | ⬜ | da scrivere |
-| 5.4 | `store`: `saveStory`/`loadStory` roundtrip (localStorage mock); `EXAMPLE_STORY` sempre presente; `deleteStory` non tocca l'esempio | ⬜ | da scrivere (jsdom) |
+| 5.1 | `deriveStages`: transizioni done/ready/gate/locked coerenti con gli artefatti presenti | ✅ | `test/stages.store.test.ts` |
+| 5.2 | `currentPhase`: seeding→immagini→libro secondo prose/manus/stage | ✅ | `test/stages.store.test.ts` |
+| 5.3 | `phaseReached` (Workspace): gating delle tab per artefatto | ⬜ | da scrivere (in §6: smoke Workspace) |
+| 5.4 | `store`: `saveStory`/`loadStory` roundtrip (localStorage mock); `EXAMPLE_STORY` sempre presente; `deleteStory` non tocca l'esempio | ✅ | `test/stages.store.test.ts` |
 
 ---
 
