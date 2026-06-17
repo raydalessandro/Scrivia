@@ -131,7 +131,7 @@ ogni provider e parsano la risposta in forma neutra.
 |---|---|---|---|
 | 5.1 | `deriveStages`: transizioni done/ready/gate/locked coerenti con gli artefatti presenti | ✅ | `test/stages.store.test.ts` |
 | 5.2 | `currentPhase`: seeding→immagini→libro secondo prose/manus/stage | ✅ | `test/stages.store.test.ts` |
-| 5.3 | `phaseReached` (Workspace): gating delle tab per artefatto | ⬜ | da scrivere (in §6: smoke Workspace) |
+| 5.3 | `phaseReached` (Workspace): gating delle tab per artefatto | ✅ | `test/Workspace.test.tsx` |
 | 5.4 | `store`: `saveStory`/`loadStory` roundtrip (localStorage mock); `EXAMPLE_STORY` sempre presente; `deleteStory` non tocca l'esempio | ✅ | `test/stages.store.test.ts` |
 
 ---
@@ -143,10 +143,10 @@ quindi prioritari solo i nodali.
 
 | # | Caso | Stato | Dove |
 |---|---|---|---|
-| 6.1 | `Workspace`: monta una storia, mostra stelo + tab; cambio fase raggiungibile | ⬜ | da scrivere |
-| 6.2 | `Phase1Seeding`: intake → "Inizia con l'IA" appende il messaggio d'apertura e passa a studio; un comando da campo muta la `Story` | ⬜ | da scrivere |
-| 6.3 | `Phase3Immagini`: storia con node/pagePlan → `useEffect` ricava entità; conferma reference → `references` compaiono nei page prompt | ⬜ | da scrivere |
-| 6.4 | `ModelPicker`: cambiare provider→modello aggiorna i reasoning disponibili; persiste via `setSelection` | ⬜ | da scrivere |
+| 6.1 | `Workspace`: monta una storia, mostra stelo + tab; cambio fase raggiungibile | ✅ | `test/Workspace.test.tsx` |
+| 6.2 | `Phase1Seeding`: intake → "Inizia con l'IA" appende il messaggio d'apertura e passa a studio; un comando da campo muta la `Story` | ✅ | `test/Phase1Seeding.test.tsx` |
+| 6.3 | `Phase3Immagini`: storia con node/pagePlan → `useEffect` ricava entità; conferma reference → `references` compaiono nei page prompt | ✅ | `test/Phase3Immagini.test.tsx` |
+| 6.4 | `ModelPicker`: cambiare provider→modello aggiorna i reasoning disponibili; persiste via `setSelection` | ✅ | `test/ModelPicker.test.tsx` |
 
 ---
 
