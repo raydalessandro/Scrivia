@@ -69,15 +69,15 @@ prompt-pagina sono veri e allegano SOLO reference confermate, segnalando le
 |---|---|---|---|
 | 2.1 | `deriveEntities`: protagonista+compagni = `character`, luogo = `location`; conteggio giusto | ✅ | `test/reference.test.ts` |
 | 2.2 | id entità ↔ `characters_present` combaciano | ✅ | idem |
-| 2.3 | **Preserva conferme** su ricostruzione (`prev`): descrittore/immagine/stato non si perdono | ⬜ | da aggiungere |
-| 2.4 | **Dedup** per id (un personaggio non si ripete) | ⬜ | da aggiungere |
+| 2.3 | **Preserva conferme** su ricostruzione (`prev`): descrittore/immagine/stato non si perdono | ✅ | `test/reference.unit.test.ts` |
+| 2.4 | **Dedup** per id (un personaggio non si ripete) | ✅ | `test/reference.unit.test.ts` |
 | 2.5 | `referenceGate`: ready solo se ogni entità `confermata` **e** ha `imageUrl` | ✅ | idem |
-| 2.6 | `buildReferenceSheetPrompt`: contiene STYLESHEET · `SUBJECT —` · SHEET FRAMING per kind · FORMAT; LOCKED se `prohibitions` | ✅ (parziale) | rafforzare (per kind) |
+| 2.6 | `buildReferenceSheetPrompt`: contiene STYLESHEET · `SUBJECT —` · SHEET FRAMING per kind · FORMAT; LOCKED se `prohibitions` | ✅ | `reference.test.ts` + `reference.unit.test.ts` |
 | 2.7 | `buildPagePrompts` pre-conferma: ogni pagina ha `missing`, `references` vuote; `allReferencesReady=false` | ✅ | idem |
 | 2.8 | `buildPagePrompts` post-conferma: `references` popolate, `missing` vuote; `allReferencesReady=true` | ✅ | idem |
-| 2.9 | **Campi veri**: `storyMoment` (beat+composizione+eventi pagina), `pov` da tipo hook, `place` dal descrittore confermato | ✅ (parziale) | esplicitare ogni campo |
-| 2.10 | **SCALA**: con ≥2 personaggi in scena → riga SCALA con altezze relative da `KIND_SCALE` | ⬜ | da aggiungere |
-| 2.11 | `stylesheet`: mappa `world`/`season` → testo; fallback ai default; blocco NEGATIVE e "NO text" presenti | ⬜ | da aggiungere |
+| 2.9 | **Campi veri**: `storyMoment` (beat+composizione+eventi pagina), `pov` da tipo hook, `place` dal descrittore confermato | ✅ | `reference.test.ts` + `reference.unit.test.ts` |
+| 2.10 | **SCALA**: con ≥2 personaggi in scena → riga SCALA con altezze relative da `KIND_SCALE` | ✅ | `test/reference.unit.test.ts` |
+| 2.11 | `stylesheet`: mappa `world`/`season` → testo; fallback ai default; blocco NEGATIVE e "NO text" presenti | ✅ | `test/reference.unit.test.ts` |
 | 2.12 | Blocchi fissi: `bookStylesheet` contiene "ART STYLE"; `CONSISTENCY_BLOCK` contiene "BINDING" | ✅ | idem |
 
 ---
