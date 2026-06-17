@@ -13,11 +13,14 @@ import { executeCommand, validateSeed, COMMANDS } from "@/lib/commands";
 import { Panel } from "../Workspace";
 import { ActorChip } from "../ui";
 import { GraphView } from "../GraphView";
+import { SeedingGame } from "./SeedingGame";
+import { seedFromGame } from "@/lib/seedFromGame";
 import type { PhaseProps } from "./types";
 
 export function Phase1Seeding({ story, update, log, goPhase }: PhaseProps) {
   const [focus, setFocus] = useState<FocusRef | null>(null);
   const [building, setBuilding] = useState(false);
+  const [guided, setGuided] = useState(false);
 
   // Esegue un comando sulla storia corrente e persiste (single source of truth).
   function run(name: string, params: Record<string, unknown>, by: "you" | "claude" = "you") {
@@ -73,17 +76,41 @@ export function Phase1Seeding({ story, update, log, goPhase }: PhaseProps) {
     setMode("studio");
   }
 
+  // Modo guidato — il seeding come "gioco" (passo-passo). Alla fine mappa sul Seed.
+  if (guided) {
+    return (
+      <SeedingGame
+        onCancel={() => setGuided(false)}
+        onComplete={(game) => {
+          const seed = seedFromGame(game);
+          update((s) => ({ ...s, seed }));
+          log({ actor: "you", event: "seme piantato (modo guidato)", detail: seed.protagonist.name });
+          setGuided(false);
+          setMode("studio");
+        }}
+      />
+    );
+  }
+
   // FASE 1a — Intake: la griglia che l'umano compila a mano (zero token).
   if (mode === "intake" && !built) {
     return (
-      <Intake
-        story={story}
-        focus={focus}
-        setFocus={setFocus}
-        run={run}
-        onStart={startChat}
-        errors={v.errors}
-      />
+      <div className="space-y-4">
+        <button
+          onClick={() => setGuided(true)}
+          className="w-full rounded-2xl border border-claude/30 bg-claude-bg/40 px-4 py-3 text-left text-sm font-medium text-claude transition hover:bg-claude-bg/70"
+        >
+          ✨ Modo guidato — pianta il seme passo-passo (consigliato la prima volta)
+        </button>
+        <Intake
+          story={story}
+          focus={focus}
+          setFocus={setFocus}
+          run={run}
+          onStart={startChat}
+          errors={v.errors}
+        />
+      </div>
     );
   }
 

@@ -23,8 +23,9 @@ il **registro** rende visibili i tempi.
 
 ### Fase 1 in dettaglio — lo "studio di seeding"
 Non un wizard usa-e-getta ma uno spazio di lunga durata (può durare settimane):
-- **Intake**: una griglia che compili a mano (zero token). Lasci vuoto ciò che
-  vuoi decidere con l'IA.
+- **Modo guidato** ("✨ pianta il seme passo-passo"): un *gioco* deterministico che
+  raccoglie protagonista, mondo, movimento, spina e **voci** (anche dei personaggi)
+  e li mappa sul `Seed` — consigliato la prima volta. In alternativa, l'**intake** libero:
 - **"Inizia con l'IA"**: il primo messaggio nasce dalla bozza — ricapitola e
   chiede solo i buchi, non "ciao, che storia hai in mente?".
 - **Memoria + focus**: chat e comandi persistono; selezioni un'entità

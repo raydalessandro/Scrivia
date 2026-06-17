@@ -59,6 +59,22 @@ export interface Seed {
   };
   voice: VoiceOverrides;
   nonce: number | null;
+  /** Voci-personaggio dal seeding "gioco" (archetipo/stress/ritmo/parole/never): alimentano il brief della prosa. */
+  characterVoices?: CharacterVoice[];
+  /** Ricetta della voce narratore (modalità "per riferimenti") o sintesi degli assi ("a orecchio"). */
+  narratorBrief?: string;
+}
+
+/** Voce di un personaggio: più ricca dell'idioletto deterministico del motore.
+ *  L'autore la definisce nel seeding; serve quando l'IA scrive i dialoghi. */
+export interface CharacterVoice {
+  name: string;
+  role: "protagonista" | "comprimario";
+  archetype?: string; // dominante
+  underStress?: string; // sotto stress (la miscela)
+  ritmo?: string;
+  words?: string; // "parole sue"
+  never?: string; // "non direbbe MAI" — il campo che distingue di più
 }
 
 // --- Nodo (node.json) — il grafo -----------------------------------------

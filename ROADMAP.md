@@ -26,6 +26,10 @@ Legenda: ✅ fatto · 🟡 in corso/prossimo · ⬜ pianificato.
   prompt del foglio di reference blindato, conferma immagine, **gate**; e **prompt-pagina veri**
   (STORY MOMENT/POV/PLACE/SUBJECT dal nodo+canone) che allegano le reference confermate —
   al posto dei segnaposto in `commands.ts`.
+- **Seeding "gioco" — modo guidato** (B3 `seeding-game`): la Fase 1 passo-passo ("pianta il
+  seme") che mappa il suo output sul `Seed` (move→attributo EAR invisibile, override di
+  grammatica, voce remappata) + **espansione voci-personaggio** (archetipo/stress/ritmo/
+  «non direbbe mai») e `narratorBrief` — alimenteranno il brief della prosa in M2.
 - **Layer AI isolato** (`lib/ai/`): Anthropic + DeepSeek, switch modello/reasoning,
   config per-fase, route d'aggancio `/api/ai`.
 - **Selettore IA in UI** (`/impostazioni`): provider/modello/reasoning per fase.
@@ -47,7 +51,7 @@ Legenda: ✅ fatto · 🟡 in corso/prossimo · ⬜ pianificato.
 ### M2 — Collegare le IA alle fasi
 - **Seeding reale**: `aiStream({task:"seeding"})` con tool-use sui comandi del
   registry; `composeOpening` diventa il system-context. Via `interpret()` interim.
-- **Prosa in streaming** dal brief (`SKILL_prosa`), pagina per pagina.
+- **Prosa in streaming** dal brief (`SKILL_prosa`), pagina per pagina — consuma `characterVoices`/`narratorBrief` del seeding gioco (B3).
 - **Critic** come sub-agente isolato che torna il verdetto JSON (`SKILL_critic`).
 - Gestione chiavi (`ANTHROPIC_API_KEY`, `DEEPSEEK_API_KEY`) su Vercel.
 
@@ -75,7 +79,7 @@ Legenda: ✅ fatto · 🟡 in corso/prossimo · ⬜ pianificato.
   ritirare la dipendenza dal riferimento Python quando i test lo garantiscono.
 
 ### Trasversali
-- **Espansione voci-personaggio** (matrice archetipo × stress × ritmo) nel brief prosa (arriva con B3).
+- **Espansione voci-personaggio** (matrice archetipo × stress × ritmo): catturata nel seeding (B3), da consumare nel brief prosa (M2).
 - Pacchetti-genere (es. `ninnananna`) lato TS.
 - Editor del libro / export PDF rifinito.
 - Accessibilità e i18n.
@@ -84,5 +88,5 @@ Legenda: ✅ fatto · 🟡 in corso/prossimo · ⬜ pianificato.
 
 ## Branch in arrivo (ordine di dipendenza)
 1. **B1 `engine-parity`** — ✅ mergiato in `main`.
-2. **B2 `reference-phase`** — Passo 0 + prompt-pagina veri (dipende da B1).
-3. **B3 `seeding-game`** — UI del gioco di seeding + mapping sul `Seed` + espansione voci (dipende da B1).
+2. **B2 `reference-phase`** — ✅ mergiato in `main`.
+3. **B3 `seeding-game`** — modo guidato + mapping `seedFromGame` + espansione voci. **Verificato** (dipende da B1).
