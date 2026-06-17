@@ -112,16 +112,16 @@ ogni provider e parsano la risposta in forma neutra.
 
 | # | Caso | Stato | Dove |
 |---|---|---|---|
-| 4.1 | `registry`: ogni modello dichiara ≥1 livello reasoning | ⬜ | da scrivere |
-| 4.2 | `clampReasoning`: opus high→high · haiku high→off · deepseek-chat *→off · fable off→livello attivo | ⬜ | da scrivere |
-| 4.3 | `config`: ogni default per-fase punta a modello esistente con reasoning supportato; `getSelection` in node = default riallineato | ⬜ | da scrivere |
-| 4.4 | `resolveSelection` (client): esplicito vince sul default; senza chiave → `AIKeyMissingError` | ⬜ | da scrivere (env mockato) |
-| 4.5 | `sseJson`: dato un body finto multi-chunk con `data:` e `[DONE]`, produce gli oggetti giusti; ignora righe parziali/non-JSON | ⬜ | da scrivere |
-| 4.6 | **Anthropic `buildBody`**: off→`thinking:disabled` (dove consentito) · low/med/high→`adaptive`+`effort` · fable→solo `effort` (no off) · haiku→niente `effort` · tool mapping `{name,description,input_schema}` · `tool_choice` | ⬜ | da scrivere |
-| 4.7 | **Anthropic parse** (mock): text/thinking/tool_use → `CompletionResult`; `stop` mappato (end/tool_use/length/refusal) | ⬜ | da scrivere |
-| 4.8 | **DeepSeek `buildBody`**: system in `messages`; tool in formato OpenAI; `tool_choice` | ⬜ | da scrivere |
-| 4.9 | **DeepSeek parse** (mock): `content`/`reasoning_content`/`tool_calls` (arguments JSON) → result; `finish_reason` mappato | ⬜ | da scrivere |
-| 4.10 | `/api/ai` GET: shape (providers/defaults/configured); POST senza chiavi → 501; body senza `messages` → 400 | ⬜ | da scrivere (route handler) |
+| 4.1 | `registry`: ogni modello dichiara ≥1 livello reasoning | ✅ | test/ai.test.ts |
+| 4.2 | `clampReasoning`: opus high→high · haiku high→off · deepseek-chat *→off · fable off→livello attivo | ✅ | test/ai.test.ts |
+| 4.3 | `config`: ogni default per-fase punta a modello esistente con reasoning supportato; `getSelection` in node = default riallineato | ✅ | test/ai.test.ts |
+| 4.4 | `resolveSelection` (client): esplicito vince sul default; senza chiave → `AIKeyMissingError` | ✅ | test/ai.test.ts |
+| 4.5 | `sseJson`: dato un body finto multi-chunk con `data:` e `[DONE]`, produce gli oggetti giusti; ignora righe parziali/non-JSON | ✅ | test/ai.test.ts |
+| 4.6 | **Anthropic `buildBody`**: off→`thinking:disabled` (dove consentito) · low/med/high→`adaptive`+`effort` · fable→solo `effort` (no off) · haiku→niente `effort` · tool mapping `{name,description,input_schema}` · `tool_choice` | ✅ | test/ai.test.ts |
+| 4.7 | **Anthropic parse** (mock): text/thinking/tool_use → `CompletionResult`; `stop` mappato (end/tool_use/length/refusal) | ✅ | test/ai.test.ts |
+| 4.8 | **DeepSeek `buildBody`**: system in `messages`; tool in formato OpenAI; `tool_choice` | ✅ | test/ai.test.ts |
+| 4.9 | **DeepSeek parse** (mock): `content`/`reasoning_content`/`tool_calls` (arguments JSON) → result; `finish_reason` mappato | ✅ | test/ai.test.ts |
+| 4.10 | `/api/ai` GET: shape (providers/defaults/configured); POST senza chiavi → 501; body senza `messages` → 400 | ✅ | test/ai.test.ts |
 
 ---
 
