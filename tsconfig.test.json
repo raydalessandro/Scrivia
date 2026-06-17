@@ -1,0 +1,12 @@
+{
+  // Config DEDICATA al type-check dei test (non usata da `next build` né dal
+  // tsc di progetto, che escludono test/). Serve a tenere i test stessi
+  // type-safe. Uso: `npm run typecheck:test`.
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "types": ["node", "vitest/globals"],
+    "noEmit": true
+  },
+  "include": ["test/**/*.ts", "test/**/*.tsx", "lib/**/*.ts", "components/**/*.tsx", "app/**/*.ts", "app/**/*.tsx"],
+  "exclude": ["node_modules", "seme"]
+}

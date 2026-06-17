@@ -91,16 +91,16 @@ entità+manus veri.
 
 | # | Caso | Stato | Dove |
 |---|---|---|---|
-| 3.1 | `validateSeed`: errori sui campi mancanti; seed completo → 0 errori; tema non mappato → warning (non errore) | ⬜ | da scrivere |
-| 3.2 | Ogni comando di mutazione applica il delta giusto e setta `updatedAt` | ⬜ | da scrivere (tabella per-comando) |
-| 3.3 | `executeCommand` registra in `commandLog` (name/by/summary) solo per le mutazioni | ⬜ | da scrivere |
-| 3.4 | `set_theme` deduce l'attributo via ontologia (`data.attribute`) | ⬜ | da scrivere |
-| 3.5 | Comando **puro** (`validate_seed`/`summarize_story`/`suggest_*`): 2ª chiamata `cached:true`; invalidazione su mutazione | ⬜ | da scrivere |
-| 3.6 | Comando sconosciuto → no-op (stessa `Story`, nessun log) | ⬜ | da scrivere |
-| 3.7 | `build_node` end-to-end: `node` + `pagePlan` + `entities` (3) + `manus` veri; `stage:"manus"`; nonce esplicito → riproducibile | ⬜ | da scrivere |
-| 3.8 | `set_intake_notes`: salva `intakeNotes` | ⬜ | da scrivere |
-| 3.9 | `toMcpTools`: 1 tool per comando; `name`/`description`/`inputSchema(type:object)`; `required` = param obbligatori | ⬜ | da scrivere |
-| 3.10 | `set_spine` con `field` fuori enum → no-op con summary chiaro | ⬜ | da scrivere |
+| 3.1 | `validateSeed`: errori sui campi mancanti; seed completo → 0 errori; tema non mappato → warning (non errore) | ✅ | test/commands.test.ts |
+| 3.2 | Ogni comando di mutazione applica il delta giusto e setta `updatedAt` | ✅ | test/commands.test.ts |
+| 3.3 | `executeCommand` registra in `commandLog` (name/by/summary) solo per le mutazioni | ✅ | test/commands.test.ts |
+| 3.4 | `set_theme` deduce l'attributo via ontologia (`data.attribute`) | ✅ | test/commands.test.ts |
+| 3.5 | Comando **puro** (`validate_seed`/`summarize_story`/`suggest_*`): 2ª chiamata `cached:true`; invalidazione su mutazione | ✅ | test/commands.test.ts |
+| 3.6 | Comando sconosciuto → no-op (stessa `Story`, nessun log) | ✅ | test/commands.test.ts |
+| 3.7 | `build_node` end-to-end: `node` + `pagePlan` + `entities` (3) + `manus` veri; `stage:"manus"`; nonce esplicito → riproducibile | ✅ | test/commands.test.ts |
+| 3.8 | `set_intake_notes`: salva `intakeNotes` | ✅ | test/commands.test.ts |
+| 3.9 | `toMcpTools`: 1 tool per comando; `name`/`description`/`inputSchema(type:object)`; `required` = param obbligatori | ✅ | test/commands.test.ts |
+| 3.10 | `set_spine` con `field` fuori enum → no-op con summary chiaro | ✅ | test/commands.test.ts |
 
 ---
 
