@@ -46,15 +46,15 @@ del seed (`overrides`, `voice`) sono onorati; `checkNode`/`checkHooks` = 0 su fu
 | 1.3 | Fix #1: `attribute_dominant` = `theme_to_attribute[theme]` senza voce (12/12 temi) | ✅ | idem |
 | 1.4 | Fix #2: `threshold_page` = inizio beat `cambiare` (triadico) / in range (mono); unica pagina con `is_threshold` | ✅ | idem |
 | 1.5 | Fix #3: `register` con varianza + sempre negli enum | ✅ | idem |
-| 1.6 | **Override onorati**: `overrides.{attribute,deployment,entry,closure,register,time_span}` → compaiono nel nodo | ⬜ | da aggiungere |
-| 1.7 | **Voce override**: `seed.voice.{asse}` valido → `node.voice.narrator` lo usa; assi attivi nel range del canone | ⬜ | da aggiungere |
-| 1.8 | **Bordi pagine**: `length_pages` <10 / >20 → clamp a [10,20]; beat_plan contiguo da 1 a `pages` | ⬜ (1.1 lo copre indiretto) | rafforzare |
-| 1.9 | **Mono vs triadico**: `ear_arc` = `[attr]` (mono) / triade (triadico) coerente con `deployment_level` | ⬜ | da aggiungere |
+| 1.6 | **Override onorati**: `overrides.{attribute,deployment,entry,closure,register,time_span}` → compaiono nel nodo | ✅ | test/engine.unit.test.ts |
+| 1.7 | **Voce override**: `seed.voice.{asse}` valido → `node.voice.narrator` lo usa; assi attivi nel range del canone | ✅ | test/engine.unit.test.ts |
+| 1.8 | **Bordi pagine**: `length_pages` <10 / >20 → clamp a [10,20]; beat_plan contiguo da 1 a `pages` | ✅ | test/engine.unit.test.ts |
+| 1.9 | **Mono vs triadico**: `ear_arc` = `[attr]` (mono) / triade (triadico) coerente con `deployment_level` | ✅ | test/engine.unit.test.ts |
 | 1.10 | **Semi**: nessuna collisione pianta/paga; pianta<paga; entro le frazioni del canone | ✅ (in 1.1) | esplicitare in unit |
 | 1.11 | **`extractHooks`**: 1 hook/pagina; tipi negli enum; ≤ max consecutivi; ≥ min tipi distinti; marker entry/closure/threshold/semi coerenti | ✅ (1.1) | esplicitare |
-| 1.12 | **Riparazione varietà-hook**: storie corte (8-9 pp) non scendono sotto `min_distinct_types` e non creano consecutivi | ⬜ (regress del bug noto) | da aggiungere |
-| 1.13 | `entityIdOfCharacter` / `locationEntityId`: stabili e slug-safe (accenti, spazi) | ⬜ | da aggiungere |
-| 1.14 | `entitiesInScene(hooks,node)`: = personaggi presenti ∪ luogo; nessun duplicato | ⬜ | da aggiungere |
+| 1.12 | **Riparazione varietà-hook**: storie corte (8-9 pp) non scendono sotto `min_distinct_types` e non creano consecutivi | ✅ | test/engine.unit.test.ts |
+| 1.13 | `entityIdOfCharacter` / `locationEntityId`: stabili e slug-safe (accenti, spazi) | ✅ | test/engine.unit.test.ts |
+| 1.14 | `entitiesInScene(hooks,node)`: = personaggi presenti ∪ luogo; nessun duplicato | ✅ | test/engine.unit.test.ts |
 
 ---
 
