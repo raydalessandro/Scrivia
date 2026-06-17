@@ -143,6 +143,25 @@ export interface ManusPrompt {
   place: string;
   characters: string;
   imageUrl?: string; // futuro: Supabase Storage
+  /** Immagini di reference confermate (Passo 0) da allegare a questo prompt. */
+  references?: string[];
+  /** Entità in scena non ancora confermate (se vuoto: la pagina è pronta). */
+  missing?: string[];
+}
+
+// --- Passo 0: record d'entità (reference visiva) --------------------------
+/** Un'entità (personaggio/luogo/oggetto) con il suo canone visivo confermato.
+ *  descriptor = aspetto canonico (SUBJECT); imageUrl = foglio di reference confermato. */
+export interface EntityRefRecord {
+  id: string; // = entityIdOfCharacter / locationEntityId (combacia con characters_present)
+  name: string;
+  kind: "character" | "location" | "object";
+  species?: string; // specie/kind, per la SCALA (es. volpe, bambino)
+  descriptor: string; // l'aspetto canonico (l'umano lo definisce nel Passo 0)
+  prohibitions?: string[]; // NO-list ripetuta nel prompt (anti-drift), opzionale
+  referencePrompt?: string; // il prompt del foglio di reference proposto
+  imageUrl?: string; // l'immagine di reference confermata (canone duro)
+  status: "da_generare" | "in_revisione" | "confermata";
 }
 
 // --- Ledger (generations.jsonl) ------------------------------------------
@@ -199,6 +218,8 @@ export interface Story {
   prose?: ProsePage[];
   critic?: CriticVerdict;
   manus?: ManusPrompt[];
+  /** Passo 0: i record d'entità con la reference visiva confermata. */
+  entities?: EntityRefRecord[];
   ledger: LedgerEvent[];
   /** Fase 1 persistente: la conversazione di seeding e i comandi eseguiti. */
   seedingChat?: ChatMsg[];

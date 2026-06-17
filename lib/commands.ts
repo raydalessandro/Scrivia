@@ -11,6 +11,9 @@
 import type { Story, Seed, CommandRun } from "./types";
 import { THEME_TO_ATTRIBUTE, ATTRIBUTE_LABEL, WORLD_FLAVORS, VOICE_AXES, ENTRY_POINTS, CLOSURES } from "./enums";
 import { buildNode, buildPagePlan, newNonce } from "./engine";
+import type { Hook } from "./engineTypes";
+import { buildPagePrompts } from "./pagePrompts";
+import { deriveEntities } from "./reference";
 import { cacheKey, memo, invalidate } from "./cache";
 
 export type ParamType = "string" | "number" | "enum";
@@ -180,12 +183,10 @@ export const COMMANDS: CommandDef[] = [
       const node = buildNode(seed);
       const pagePlan = buildPagePlan(node);
       n.seed = seed; n.node = node; n.pagePlan = pagePlan; n.title = node.title; n.stage = "manus";
-      n.manus = pagePlan.map((pp) => ({
-        page: pp.page, hook: pp.hook, beat: pp.beat, storyMoment: pp.note || `${node.protagonist.name}: ${pp.beat}`,
-        pov: pp.page === 1 ? "a wide establishing shot" : "a medium shot at eye level",
-        place: `${node.setting_primary} — ${node.season}`,
-        characters: node.protagonist.name + (node.companions[0] ? ` + ${node.companions[0].name}` : ""),
-      }));
+      // Passo 0: ricava le entità (preserva conferme già fatte se si ricostruisce).
+      n.entities = deriveEntities(node, n.entities);
+      // Prompt-pagina VERI dal nodo + canone, con le reference confermate allegate.
+      n.manus = buildPagePrompts(node, pagePlan as Hook[], n.entities);
       return { story: n, summary: `Grafo costruito · nonce ${node.seed_nonce} · ${node.attribute_dominant}/${node.deployment_level}` };
     },
   },
