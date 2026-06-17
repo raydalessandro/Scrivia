@@ -6,6 +6,7 @@ import { loadStory, saveStory } from "@/lib/store";
 import { deriveStages, PHASES, STAGE_TO_PHASE } from "@/lib/stages";
 import type { Story, PhaseId, LedgerEvent } from "@/lib/types";
 import { Stem } from "./Stem";
+import { PhaseModelChip } from "./ai/PhaseModelChip";
 import { Ledger } from "./Ledger";
 import { Phase1Seeding } from "./phases/Phase1Seeding";
 import { Phase2Prosa } from "./phases/Phase2Prosa";
@@ -84,6 +85,8 @@ export function Workspace({ id }: { id: string }) {
           );
         })}
       </nav>
+
+      <PhaseModelChip phase={phase} />
 
       <div className="mt-5 grid gap-5 lg:grid-cols-[260px_1fr]">
         {/* Rail sinistra: stelo + registro */}

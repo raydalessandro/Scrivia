@@ -21,8 +21,13 @@ export default function Home() {
   }
 
   return (
-    <main className="mx-auto max-w-3xl px-5 pb-24 pt-12">
-      <header className="text-center">
+    <main className="mx-auto max-w-3xl px-5 pb-24 pt-6">
+      <div className="flex justify-end">
+        <Link href="/impostazioni" className="rounded-full border border-line bg-paper-2 px-3 py-1.5 text-xs text-ink-soft transition hover:text-ink">
+          ⚙ Modelli IA
+        </Link>
+      </div>
+      <header className="mt-4 text-center">
         <Seedling />
         <p className="mt-3 text-xs uppercase tracking-[0.32em] text-ink-soft">Scrivia</p>
         <h1 className="serif mt-1 text-3xl font-semibold">Far crescere una storia</h1>
