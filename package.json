@@ -12,7 +12,8 @@
     "test:watch": "vitest",
     "test:engine": "vitest run test/engine.parity.test.ts",
     "test:reference": "vitest run test/reference.test.ts",
-    "typecheck:test": "tsc -p tsconfig.test.json --noEmit"
+    "typecheck:test": "tsc -p tsconfig.test.json --noEmit",
+    "check": "vitest run && tsc -p tsconfig.test.json --noEmit && tsc --noEmit && next build"
   },
   "dependencies": {
     "next": "^15.1.6",
