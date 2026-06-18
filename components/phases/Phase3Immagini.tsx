@@ -12,10 +12,11 @@ import { useState, useEffect } from "react";
 import { Panel } from "../Workspace";
 import { ActorChip, Pill } from "../ui";
 import type { PhaseProps } from "./types";
-import type { EntityRefRecord } from "@/lib/types";
+import type { EntityRefRecord, ManusPrompt } from "@/lib/types";
 import type { Hook } from "@/lib/engineTypes";
 import { deriveEntities, buildReferenceSheetPrompt, referenceGate } from "@/lib/reference";
 import { buildPagePrompts, bookStylesheet, CONSISTENCY_BLOCK } from "@/lib/pagePrompts";
+import { composeImagePrompt } from "@/lib/images";
 
 export function Phase3Immagini({ story, update, log, goPhase }: PhaseProps) {
   const manus = story.manus ?? [];
@@ -44,6 +45,32 @@ export function Phase3Immagini({ story, update, log, goPhase }: PhaseProps) {
 
   const gate = referenceGate(entities);
   const confirmed = entities.filter((e) => e.status === "confermata" && e.imageUrl).length;
+
+  // Genera la pagina: compone il prompt (puro) e lo manda a /api/images (la chiave GPT è
+  // server-side). Senza chiave la route risponde "manual" → si resta al flusso Manus.
+  const [busyPage, setBusyPage] = useState<number | null>(null);
+  const [manualHint, setManualHint] = useState<number | null>(null);
+  async function generatePage(m: ManusPrompt) {
+    if ((m.missing?.length ?? 0) > 0 || !story.node) return; // gate: reference confermate
+    setBusyPage(m.page);
+    setManualHint(null);
+    try {
+      const req = composeImagePrompt(story.node, m, entities);
+      update((s) => ({ ...s, manus: s.manus?.map((x) => (x.page === m.page ? { ...x, imagePrompt: req.prompt } : x)) }));
+      const res = await fetch("/api/images", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(req),
+      }).then((r) => r.json()).catch(() => null);
+      if (res?.status === "generated" && res.imageUrl) {
+        update((s) => ({ ...s, manus: s.manus?.map((x) => (x.page === m.page ? { ...x, imageUrl: res.imageUrl, imageProvider: "openai" } : x)) }));
+      } else {
+        setManualHint(m.page); // non collegato (o errore): copia il prompt e incolla da Manus
+      }
+    } finally {
+      setBusyPage(null);
+    }
+  }
 
   return (
     <div className="space-y-5">
@@ -105,9 +132,14 @@ export function Phase3Immagini({ story, update, log, goPhase }: PhaseProps) {
         </p>
         <div className="mt-4 grid grid-cols-2 gap-3 xl:grid-cols-3">
           {manus.map((m) => (
-            <PageCard key={m.page} prompt={m} entities={entities} onImage={(url) => {
-              update((s) => ({ ...s, manus: s.manus?.map((x) => (x.page === m.page ? { ...x, imageUrl: url } : x)) }));
-            }} />
+            <PageCard key={m.page} prompt={m} entities={entities}
+              onImage={(url) => {
+                update((s) => ({ ...s, manus: s.manus?.map((x) => (x.page === m.page ? { ...x, imageUrl: url, imageProvider: "manual" } : x)) }));
+              }}
+              onGenerate={() => generatePage(m)}
+              generating={busyPage === m.page}
+              manualHint={manualHint === m.page}
+            />
           ))}
         </div>
       </Panel>
@@ -206,13 +238,17 @@ function EntityCard({
 
 // ---------------- card di una pagina (Passo 1) ----------------
 function PageCard({
-  prompt, entities, onImage,
+  prompt, entities, onImage, onGenerate, generating, manualHint,
 }: {
   prompt: import("@/lib/types").ManusPrompt;
   entities: EntityRefRecord[];
   onImage: (url: string) => void;
+  onGenerate?: () => void;
+  generating?: boolean;
+  manualHint?: boolean;
 }) {
   const [open, setOpen] = useState(false);
+  const canGenerate = (prompt.missing?.length ?? 0) === 0;
   const refNames = (prompt.references ?? [])
     .map((url) => entities.find((e) => e.imageUrl === url)?.name)
     .filter(Boolean)
@@ -250,9 +286,24 @@ function PageCard({
         ) : refNames ? (
           <p className="mt-1 text-[11px] text-ink-soft">reference da allegare: {refNames}</p>
         ) : null}
-        <button onClick={() => setOpen((v) => !v)} className="mt-2 text-xs text-manus underline">
-          {open ? "nascondi prompt" : "mostra prompt"}
-        </button>
+        <div className="mt-2 flex items-center gap-3">
+          <button onClick={() => setOpen((v) => !v)} className="text-xs text-manus underline">
+            {open ? "nascondi prompt" : "mostra prompt"}
+          </button>
+          <button
+            onClick={onGenerate}
+            disabled={!canGenerate || generating}
+            className="rounded-lg bg-ink px-2.5 py-1 text-xs font-semibold text-paper disabled:opacity-40"
+            title={canGenerate ? "Genera (GPT se collegato, altrimenti modalità Manus)" : "Conferma prima le reference"}
+          >
+            {generating ? "genero…" : "Genera"}
+          </button>
+        </div>
+        {manualHint && (
+          <p className="mt-1 text-[11px] text-ink-soft">
+            Generazione automatica non collegata: copia il prompt qui sopra, genera in <b>Manus</b> e rimetti l'immagine nello slot.
+          </p>
+        )}
         {open && (
           <pre className="mt-2 max-h-44 overflow-auto whitespace-pre-wrap rounded-lg bg-paper p-2 text-[11px] leading-relaxed text-ink">
 {`STORY MOMENT: ${prompt.storyMoment}

@@ -163,6 +163,10 @@ export interface ManusPrompt {
   references?: string[];
   /** Entità in scena non ancora confermate (se vuoto: la pagina è pronta). */
   missing?: string[];
+  /** Prompt-immagine finale composto (blocchi blindati) — da copiare in Manus o loggare. */
+  imagePrompt?: string;
+  /** Provider che ha prodotto l'immagine ("openai" auto, "manual" incollata). */
+  imageProvider?: "openai" | "manual";
 }
 
 // --- Passo 0: record d'entità (reference visiva) --------------------------
