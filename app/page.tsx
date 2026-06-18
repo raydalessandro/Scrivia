@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { loadStories, newStory, saveStory } from "@/lib/store";
-import { deriveStages, PHASES, currentPhase } from "@/lib/stages";
+import { deriveStages } from "@/lib/stages";
+import { Reperto, repertoStage, STAGE_META } from "@/components/visual";
 import type { Story } from "@/lib/types";
 import { useRouter } from "next/navigation";
 
@@ -67,42 +68,52 @@ export default function Home() {
 function StoryCard({ story }: { story: Story }) {
   const stages = deriveStages(story);
   const done = stages.filter((s) => s.state === "done").length;
-  const phase = PHASES.find((p) => p.id === currentPhase(story));
-  const pct = Math.round((done / stages.length) * 100);
+  const st = repertoStage(story);
+  const sm = STAGE_META[st];
   return (
     <Link
       href={`/story/${story.id}`}
-      className="card group flex flex-col p-4 transition hover:-translate-y-0.5 hover:shadow-md"
+      className="card group flex gap-3.5 p-4 transition hover:-translate-y-0.5 hover:shadow-md"
     >
-      <div className="flex items-start justify-between gap-2">
-        <h3 className="serif text-lg font-semibold leading-tight">{story.title}</h3>
-        {story.id === "esempio" && (
-          <span className="eyebrow shrink-0 rounded-full bg-github-bg px-2 py-0.5 text-[10px] text-github">
-            esempio
-          </span>
-        )}
-      </div>
-      <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-ink-soft">
-        {story.seed.pugno || "Seme ancora da piantare."}
-      </p>
+      {/* il reperto vivo: cresce con la storia (alimentato da repertoStage) */}
+      <Reperto stage={st} size={52} className="-mt-1 shrink-0 self-start" />
 
-      <div className="mt-auto pt-4">
-        <div className="flex items-center gap-2">
-          <div className="flex h-1.5 flex-1 gap-0.5 overflow-hidden rounded-full">
-            {stages.map((s) => (
-              <span
-                key={s.id}
-                className="flex-1 transition-colors"
-                style={{ background: s.state === "done" ? "var(--color-ink-soft)" : "var(--color-line)" }}
-              />
-            ))}
-          </div>
-          <span className="text-xs tabular-nums text-ink-faint">{done}/{stages.length}</span>
+      <div className="flex min-w-0 flex-1 flex-col">
+        <div className="flex items-start justify-between gap-2">
+          <h3 className="serif text-lg font-semibold leading-tight">{story.title}</h3>
+          {story.id === "esempio" && (
+            <span className="eyebrow shrink-0 rounded-full bg-github-bg px-2 py-0.5 text-[10px] text-github">
+              esempio
+            </span>
+          )}
         </div>
-        <div className="mt-2.5 flex items-center gap-1.5 text-xs text-ink-soft">
-          <span className="grid h-5 w-5 place-items-center rounded-full bg-paper-3 text-[10px] font-bold text-ink-soft">{phase?.n}</span>
-          <span className="text-ink">{phase?.label}</span>
-          <span className="ml-auto text-ink-faint">{pct === 100 ? "fatto" : "in corso"}</span>
+        <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-ink-soft">
+          {story.seed.pugno || "Seme ancora da piantare."}
+        </p>
+
+        <div className="mt-auto pt-4">
+          <div className="flex items-center gap-2">
+            <div className="flex h-1.5 flex-1 gap-0.5 overflow-hidden rounded-full">
+              {stages.map((s) => (
+                <span
+                  key={s.id}
+                  className="flex-1 transition-colors"
+                  style={{ background: s.state === "done" ? "var(--color-ink-soft)" : "var(--color-line)" }}
+                />
+              ))}
+            </div>
+            <span className="text-xs tabular-nums text-ink-faint">{done}/{stages.length}</span>
+          </div>
+          {/* didascalia da reperto: stadio · parola, col colore della mano */}
+          <div className="mt-2.5 flex items-center gap-2 text-xs">
+            <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: sm.colorVar }} aria-hidden />
+            <span className="tracking-wide text-ink-soft">
+              <span className="tabular-nums font-medium">{sm.rom}</span>
+              {" · "}
+              <span className="serif italic text-ink">{sm.word}</span>
+            </span>
+            <span className="ml-auto text-ink-faint">{st === 4 ? "fiorito" : "in coltura"}</span>
+          </div>
         </div>
       </div>
     </Link>
