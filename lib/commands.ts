@@ -11,6 +11,7 @@
 import type { Story, Seed, CommandRun } from "./types";
 import { THEME_TO_ATTRIBUTE, ATTRIBUTE_LABEL, WORLD_FLAVORS, VOICE_AXES, ENTRY_POINTS, CLOSURES } from "./enums";
 import { buildNode, buildPagePlan, newNonce } from "./engine";
+import { buildBrief } from "./brief";
 import type { Hook } from "./engineTypes";
 import { buildPagePrompts } from "./pagePrompts";
 import { deriveEntities } from "./reference";
@@ -187,6 +188,8 @@ export const COMMANDS: CommandDef[] = [
       n.entities = deriveEntities(node, n.entities);
       // Prompt-pagina VERI dal nodo + canone, con le reference confermate allegate.
       n.manus = buildPagePrompts(node, pagePlan as Hook[], n.entities);
+      // Writing brief (zero-token) che il prosatore leggerà in M2 (brief-first).
+      n.brief = buildBrief(node, pagePlan as Hook[], seed);
       return { story: n, summary: `Grafo costruito · nonce ${node.seed_nonce} · ${node.attribute_dominant}/${node.deployment_level}` };
     },
   },
