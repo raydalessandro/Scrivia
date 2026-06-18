@@ -13,6 +13,8 @@ import { EXAMPLE_STORY } from "@/lib/example";
 import { buildProsaRequest, accumulateProseText } from "@/lib/ai/tasks/prosa";
 import { sseJson } from "@/lib/ai/sse";
 import type { StreamEvent } from "@/lib/ai/types";
+import { auditDeterministic } from "@/lib/audit";
+import { buildCriticRequest, parseCriticResponse, mergeCriticVerdict, withSemanticPending } from "@/lib/ai/tasks/critic";
 
 export function Phase2Prosa({ story, update, log, goPhase }: PhaseProps) {
   const [pages, setPages] = useState<ProsePage[]>(story.prose ?? []);
@@ -85,16 +87,36 @@ export function Phase2Prosa({ story, update, log, goPhase }: PhaseProps) {
   async function runCritic() {
     setAuditing(true);
     const t0 = Date.now();
-    await tick(1600);
-    const v: CriticVerdict =
-      story.id === "esempio" && EXAMPLE_STORY.critic
-        ? EXAMPLE_STORY.critic
-        : DEFAULT_CRITIC;
-    setCritic(v);
-    setAuditing(false);
+    let verdict: CriticVerdict;
+    if (story.id === "esempio" && EXAMPLE_STORY.critic) {
+      await tick(900); // demo: verdetto curato (la storia d'esempio)
+      verdict = EXAMPLE_STORY.critic;
+    } else {
+      // Strati deterministici (sempre, senza chiave): regex + strutturale.
+      verdict = auditDeterministic(story);
+      // Strato semantico (se c'è una chiave): POST /api/ai (no stream) → JSON verdict.
+      try {
+        const req = buildCriticRequest(story);
+        const res = await fetch("/api/ai", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...req, stream: false }),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          verdict = mergeCriticVerdict(verdict, parseCriticResponse(data?.text ?? ""));
+        } else {
+          verdict = withSemanticPending(verdict); // 501/errore: tieni il deterministico + nota
+        }
+      } catch {
+        verdict = withSemanticPending(verdict);
+      }
+    }
+    setCritic(verdict);
     const ms = Date.now() - t0;
-    update((s) => ({ ...s, critic: v }));
-    log({ actor: "claude", event: "audit (critic)", detail: `${v.verdict} · ${v.checks.filter((c) => c.pass).length}/${v.checks.length}`, durationMs: ms });
+    update((s) => ({ ...s, critic: verdict }));
+    setAuditing(false);
+    log({ actor: "det", event: "critic (strati)", detail: `${verdict.verdict} · ${verdict.checks.filter((c) => c.pass).length}/${verdict.checks.length}`, durationMs: ms });
   }
 
   return (
@@ -205,17 +227,5 @@ function CriticChecklist({ v }: { v: CriticVerdict }) {
     </div>
   );
 }
-
-const DEFAULT_CRITIC: CriticVerdict = {
-  verdict: "PASS",
-  checks: [
-    { key: "scheletro_invisibile", label: "Scheletro invisibile", pass: true, note: "i tre movimenti non sono nominati" },
-    { key: "niente_moralina", label: "Niente moralina", pass: true, note: "nessuno spiega il senso" },
-    { key: "chiusura_non_esplicativa", label: "Chiusura non esplicativa", pass: true, note: "la chiusura sigilla, non spiega" },
-    { key: "soglia_come_gesto", label: "Soglia come gesto", pass: true, note: "alla soglia accade un gesto concreto" },
-    { key: "semi_pagati", label: "Semi pagati", pass: true, note: "i semi tornano con peso diverso" },
-  ],
-  page_flags: [],
-};
 
 const tick = (ms: number) => new Promise((r) => setTimeout(r, ms));
