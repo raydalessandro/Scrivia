@@ -10,6 +10,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { Story, FocusRef, ChatMsg } from "@/lib/types";
 import { THEME_TO_ATTRIBUTE, ATTRIBUTE_LABEL, ENTRY_POINTS, CLOSURES, REGISTERS, TIME_SPANS, VOICE_AXES, WORLD_FLAVORS } from "@/lib/enums";
 import { executeCommand, validateSeed, COMMANDS } from "@/lib/commands";
+import { buildSeedingRequest, applySeedingTurn } from "@/lib/ai/tasks/seeding";
+import { sseJson } from "@/lib/ai/sse";
+import type { StreamEvent } from "@/lib/ai/types";
 import { Panel } from "../Workspace";
 import { ActorChip } from "../ui";
 import { GraphView } from "../GraphView";
@@ -29,28 +32,55 @@ export function Phase1Seeding({ story, update, log, goPhase }: PhaseProps) {
     return r;
   }
 
-  // L'assistente: interpreta il testo (con il focus) → esegue comandi → risponde.
-  // Interim finché non si collega la tua IA/MCP: stessa identica superficie (i comandi).
-  function send(text: string) {
-    const now = new Date().toISOString();
-    const userMsg: ChatMsg = { id: rid(), who: "you", text, ts: now, focus: focus ?? undefined };
-    const intents = interpret(text, focus, story);
-    let cur = story;
-    const did: string[] = [];
-    for (const it of intents) {
-      const r = executeCommand(cur, it.name, it.params, "claude");
-      cur = r.story;
-      did.push(r.run.summary);
+  // L'assistente conversazionale: l'IA (con i comandi come strumenti) raccoglie il seed
+  // e poi "clicca" (build_node). La chiave è server-side → si passa per /api/ai. Senza
+  // chiave (501) o errore, ricade sull'interim deterministico (interpret) + un suggerimento.
+  const [sending, setSending] = useState(false);
+  async function send(text: string) {
+    if (sending) return;
+    setSending(true);
+    const userMsg: ChatMsg = { id: rid(), who: "you", text, ts: new Date().toISOString(), focus: focus ?? undefined };
+    let afterStory: Story = story;
+    let replyText = "";
+    let commandNames: string[] = [];
+
+    let res: Response | null = null;
+    try {
+      const req = buildSeedingRequest(story, text);
+      res = await fetch("/api/ai", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...req, stream: true }),
+      });
+    } catch {
+      res = null;
     }
-    const v = validateSeed(cur.seed);
-    const replyText = did.length
-      ? `Fatto: ${did.join(" · ")}.${v.errors.length ? ` Manca ancora: ${v.errors[0]}.` : " Il seme è completo — possiamo costruire il grafo."}`
-      : focus
-      ? `Tengo presente che parliamo di «${focus.label}». Dimmi cosa cambio, o tocca un campo per modificarlo a mano.`
-      : `Ti seguo. Puoi dirmi protagonista, mondo, tema, il pugno… o toccare una scheda qui sotto per lavorarci insieme.`;
-    const botMsg: ChatMsg = { id: rid(), who: "claude", text: replyText, ts: new Date().toISOString(), commands: did.length ? intents.map((i) => i.name) : undefined };
-    const next: Story = { ...cur, seedingChat: [...(cur.seedingChat ?? []), userMsg, botMsg] };
-    update(() => next);
+
+    if (res && res.ok) {
+      const events: StreamEvent[] = [];
+      try { for await (const ev of sseJson(res)) events.push(ev as StreamEvent); } catch { /* fine stream */ }
+      const t = applySeedingTurn(story, events);
+      afterStory = t.story; replyText = t.replyText; commandNames = t.commandNames;
+    } else {
+      const intents = interpret(text, focus, story);
+      let cur = story;
+      const did: string[] = [];
+      for (const it of intents) { const r = executeCommand(cur, it.name, it.params, "claude"); cur = r.story; did.push(r.run.summary); }
+      afterStory = cur; commandNames = intents.map((i) => i.name);
+      const v = validateSeed(cur.seed);
+      const hint = res && res.status === 501
+        ? " (Per il seeding conversazionale collega una chiave nelle impostazioni, oppure usa il Modo guidato.)"
+        : "";
+      replyText = (did.length
+        ? `Fatto: ${did.join(" · ")}.${v.errors.length ? ` Manca ancora: ${v.errors[0]}.` : " Il seme è completo — possiamo costruire il grafo."}`
+        : focus
+        ? `Tengo presente che parliamo di «${focus.label}». Dimmi cosa cambio, o tocca un campo.`
+        : "Ti seguo. Dimmi protagonista, mondo, tema, il pugno… o tocca una scheda qui sotto.") + hint;
+    }
+
+    const botMsg: ChatMsg = { id: rid(), who: "claude", text: replyText, ts: new Date().toISOString(), commands: commandNames.length ? commandNames : undefined };
+    update(() => ({ ...afterStory, seedingChat: [...(afterStory.seedingChat ?? []), userMsg, botMsg] }));
+    setSending(false);
   }
 
   async function build() {
@@ -265,7 +295,7 @@ export function Phase1Seeding({ story, update, log, goPhase }: PhaseProps) {
 
         {/* La chat con l'IA: tiene il focus, sticky su desktop */}
         <div className={`${tab === "chat" ? "block" : "hidden"} lg:order-2 lg:block lg:sticky lg:top-32 lg:self-start`}>
-          <SeedingChat story={story} focus={focus} setFocus={setFocus} onSend={send} />
+          <SeedingChat story={story} focus={focus} setFocus={setFocus} onSend={send} sending={sending} />
         </div>
       </div>
     </div>
@@ -275,7 +305,7 @@ export function Phase1Seeding({ story, update, log, goPhase }: PhaseProps) {
 // ---------------------------------------------------------------------------
 // Chat
 // ---------------------------------------------------------------------------
-function SeedingChat({ story, focus, setFocus, onSend }: { story: Story; focus: FocusRef | null; setFocus: (f: FocusRef | null) => void; onSend: (t: string) => void }) {
+function SeedingChat({ story, focus, setFocus, onSend, sending }: { story: Story; focus: FocusRef | null; setFocus: (f: FocusRef | null) => void; onSend: (t: string) => void; sending?: boolean }) {
   const [draft, setDraft] = useState("");
   const endRef = useRef<HTMLDivElement>(null);
   const chat = story.seedingChat ?? [];
@@ -284,7 +314,7 @@ function SeedingChat({ story, focus, setFocus, onSend }: { story: Story; focus: 
 
   function submit() {
     const t = draft.trim();
-    if (!t) return;
+    if (!t || sending) return;
     onSend(t);
     setDraft("");
   }
@@ -328,11 +358,12 @@ function SeedingChat({ story, focus, setFocus, onSend }: { story: Story; focus: 
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && submit()}
-            placeholder={focus ? `parla di ${focus.label}…` : "scrivi…"}
-            className="field min-w-0 flex-1"
+            placeholder={sending ? "l'IA sta rispondendo…" : focus ? `parla di ${focus.label}…` : "scrivi…"}
+            disabled={sending}
+            className="field min-w-0 flex-1 disabled:opacity-60"
             enterKeyHint="send"
           />
-          <button onClick={submit} aria-label="Invia" className="btn-claude shrink-0 px-4 text-sm">Invia</button>
+          <button onClick={submit} disabled={sending} aria-label="Invia" className="btn-claude shrink-0 px-4 text-sm disabled:opacity-50">{sending ? "…" : "Invia"}</button>
         </div>
       </div>
     </Panel>
