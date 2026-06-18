@@ -42,7 +42,7 @@ export function Pill({
     warn: "bg-gate-bg text-gate border-gate/30",
   } as const;
   return (
-    <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs ${tones[tone]}`}>
+    <span className={`inline-flex items-center gap-1 whitespace-nowrap rounded-full border px-2.5 py-1 text-xs font-medium ${tones[tone]}`}>
       {children}
     </span>
   );

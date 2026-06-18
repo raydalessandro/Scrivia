@@ -70,12 +70,10 @@ describe("§6.1 Workspace: montaggio, stelo + tab, cambio fase raggiungibile", (
 
     // stelo presente
     expect(getByTestId("stem")).toBeTruthy();
-    // 4 tab con le etichette delle fasi
-    const labels = tabs(container).map((b) => b.textContent);
-    expect(labels.some((t) => t?.includes("Progetta la storia"))).toBe(true);
-    expect(labels.some((t) => t?.includes("Scrivi la prosa"))).toBe(true);
-    expect(labels.some((t) => t?.includes("Le illustrazioni"))).toBe(true);
-    expect(labels.some((t) => t?.includes("Monta il libro"))).toBe(true);
+    // 4 passi nello stepper. Il redesign mostra i numeri (1·2·3·4); il nome della
+    // fase attiva è nell'intestazione, non ripetuto su ogni tab.
+    expect(tabs(container).length).toBe(4);
+    expect(container.textContent).toContain("Progetta la storia");
     // senza prosa si apre su seeding
     expect(getByTestId("phase-seeding")).toBeTruthy();
   });

@@ -103,7 +103,7 @@ export function Phase3Immagini({ story, update, log, goPhase }: PhaseProps) {
         <p className="text-sm text-ink-soft">
           Per ogni pagina: copia il prompt (mostra le reference da allegare), genera in Manus, rimetti l'immagine nello slot.
         </p>
-        <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="mt-4 grid grid-cols-2 gap-3 xl:grid-cols-3">
           {manus.map((m) => (
             <PageCard key={m.page} prompt={m} entities={entities} onImage={(url) => {
               update((s) => ({ ...s, manus: s.manus?.map((x) => (x.page === m.page ? { ...x, imageUrl: url } : x)) }));
@@ -114,7 +114,7 @@ export function Phase3Immagini({ story, update, log, goPhase }: PhaseProps) {
 
       <button
         onClick={() => goPhase?.("libro")}
-        className="w-full rounded-xl bg-ink py-3 text-sm font-semibold text-paper"
+        className="btn-ink w-full"
       >
         {manus.every((m) => m.imageUrl) && manus.length > 0 ? "Monta il libro →" : "Vai al libro (anche con immagini mancanti) →"}
       </button>
@@ -181,15 +181,15 @@ function EntityCard({
             className="mt-2 w-full resize-none rounded-lg border border-line bg-paper p-2 text-xs leading-relaxed text-ink"
           />
 
-          <div className="mt-2 flex items-center gap-3 text-xs">
-            <button onClick={() => setShowPrompt((v) => !v)} className="text-manus underline">
+          <div className="mt-2.5 flex flex-wrap items-center gap-2 text-xs">
+            <button onClick={() => setShowPrompt((v) => !v)} className="rounded-lg px-2 py-1.5 font-medium text-manus underline-offset-2 hover:underline">
               {showPrompt ? "nascondi prompt" : "prompt foglio reference"}
             </button>
             {entity.imageUrl && !confirmed && (
-              <button onClick={confirm} className="rounded-lg bg-ink px-3 py-1 font-semibold text-paper">Conferma reference</button>
+              <button onClick={confirm} className="rounded-lg bg-ink px-3 py-1.5 font-semibold text-paper shadow-sm transition active:scale-95">Conferma reference</button>
             )}
             {entity.imageUrl && (
-              <button onClick={() => onPatch({ imageUrl: undefined, status: "da_generare" })} className="text-ink-soft underline">cambia immagine</button>
+              <button onClick={() => onPatch({ imageUrl: undefined, status: "da_generare" })} className="rounded-lg px-2 py-1.5 text-ink-soft underline-offset-2 hover:underline">cambia immagine</button>
             )}
           </div>
 

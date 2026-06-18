@@ -46,15 +46,15 @@ export interface SeedingGameProps {
 }
 
 const C = {
-  paper: "#f7f3e9", paper2: "#fffdf8", ink: "#2c281f", inkSoft: "#6c6354",
-  line: "#e4ddcc", line2: "#d6cdb8",
+  paper: "#f5f1e6", paper2: "#fffdf8", ink: "#2b271e", inkSoft: "#6c6354",
+  line: "#e6dfcd", line2: "#d6cdb8",
   claude: "#7a5e93", claudeBg: "#efe8f2",
   you: "#3f6ea6", youBg: "#e2ebf4",
   det: "#8a8270", detBg: "#ece7d8",
   gate: "#a64a3f", gateBg: "#f6e6df",
   amber: "#b07d2e", amberBg: "#f4ecd9", manus: "#3a8a80", manusBg: "#e2f0ed",
 };
-const SERIF = '"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif';
+const SERIF = '"Fraunces","Iowan Old Style",Palatino,Georgia,serif';
 
 const STEPS = [
   { id: "scarico", label: "Scarico" },
@@ -221,13 +221,14 @@ function Footer({ onBack, onNext, backDisabled, nextDisabled, nextLabel, hint }:
   onBack: () => void; onNext: () => void; backDisabled: boolean; nextDisabled: boolean; nextLabel: string; hint: string | null;
 }) {
   return (
-    <footer style={{ borderTop: `1px solid ${C.line}`, background: "rgba(247,243,233,0.96)" }} className="sticky bottom-0 px-4 py-3 backdrop-blur">
+    <footer style={{ borderTop: `1px solid ${C.line}`, background: "rgba(245,241,230,0.9)" }} className="sticky bottom-0 px-4 py-3 backdrop-blur-md" >
       {hint && <p style={{ color: C.inkSoft }} className="mb-2 text-center text-xs">{hint}</p>}
-      <div className="flex gap-2">
-        <button onClick={onBack} disabled={backDisabled} style={{ border: `1px solid ${C.line2}`, color: backDisabled ? C.line2 : C.ink }}
-          className="min-h-11 rounded-xl px-4 text-sm font-medium disabled:opacity-50">←</button>
-        <button onClick={onNext} disabled={nextDisabled} style={{ background: nextDisabled ? C.line : C.ink, color: nextDisabled ? C.inkSoft : C.paper }}
-          className="min-h-11 flex-1 rounded-xl text-sm font-semibold transition-colors">
+      <div className="flex gap-2" style={{ paddingBottom: "env(safe-area-inset-bottom)" }}>
+        <button onClick={onBack} disabled={backDisabled} aria-label="Indietro" style={{ border: `1px solid ${C.line2}`, color: backDisabled ? C.line2 : C.ink, background: C.paper2 }}
+          className="grid min-h-[52px] w-[52px] place-items-center rounded-2xl text-lg transition active:scale-95 disabled:opacity-50">←</button>
+        <button onClick={onNext} disabled={nextDisabled}
+          style={{ background: nextDisabled ? C.line : "linear-gradient(180deg,#393327 0%,#2b271e 100%)", color: nextDisabled ? C.inkSoft : C.paper, boxShadow: nextDisabled ? "none" : "0 6px 18px -4px rgba(60,50,30,0.28)" }}
+          className="min-h-[52px] flex-1 rounded-2xl text-sm font-semibold transition active:scale-[0.99]">
           {nextDisabled ? "Completa per continuare" : `Avanti · ${nextLabel} →`}
         </button>
       </div>
@@ -237,7 +238,7 @@ function Footer({ onBack, onNext, backDisabled, nextDisabled, nextLabel, hint }:
 
 /* ------------------------------------------------------------ primitive UI */
 function Card({ children, accent }: { children: React.ReactNode; accent?: string }) {
-  return <div style={{ background: C.paper2, border: `1px solid ${accent || C.line}` }} className="rounded-2xl p-4">{children}</div>;
+  return <div style={{ background: C.paper2, border: `1px solid ${accent || C.line}`, boxShadow: "0 1px 2px 0 rgb(60 50 30 / 0.05), 0 1px 3px 0 rgb(60 50 30 / 0.06)" }} className="rounded-2xl p-4">{children}</div>;
 }
 function Title({ kicker, children }: { kicker?: string; children: React.ReactNode }) {
   return (
@@ -252,8 +253,8 @@ function Lbl({ children }: { children: React.ReactNode }) { return <label style=
 function Chip({ on, onClick, children, disabled, color = C.claude }: { on: boolean; onClick: () => void; children: React.ReactNode; disabled?: boolean; color?: string }) {
   return (
     <button onClick={onClick} disabled={disabled}
-      style={{ background: on ? color : C.paper2, color: on ? "#fff" : disabled ? C.line2 : C.ink, border: `1px solid ${on ? color : C.line2}` }}
-      className="min-h-11 rounded-full px-3.5 text-sm transition-colors disabled:opacity-60">{children}</button>
+      style={{ background: on ? color : C.paper2, color: on ? "#fff" : disabled ? C.line2 : C.ink, border: `1px solid ${on ? color : C.line2}`, boxShadow: on ? "0 2px 8px -2px rgba(60,50,30,0.18)" : "none" }}
+      className="min-h-11 rounded-full px-3.5 text-sm transition active:scale-95 disabled:opacity-60">{children}</button>
   );
 }
 function TextInput({ value, onChange, placeholder, big }: { value: string; onChange: (v: string) => void; placeholder?: string; big?: boolean }) {

@@ -17,7 +17,7 @@ const PHASE_TASK: Partial<Record<PhaseId, AITask>> = {
   immagini: "image_prompt",
 };
 
-export function PhaseModelChip({ phase }: { phase: PhaseId }) {
+export function PhaseModelChip({ phase, compact }: { phase: PhaseId; compact?: boolean }) {
   const task = PHASE_TASK[phase];
   const [sel, setSel] = useState<ResolvedSelection | null>(null);
 
@@ -26,6 +26,20 @@ export function PhaseModelChip({ phase }: { phase: PhaseId }) {
   }, [task]);
 
   if (!task) return null;
+
+  // versione compatta per la barra in alto: solo il chip, è esso stesso il link.
+  if (compact) {
+    return (
+      <Link
+        href="/impostazioni"
+        title="Cambia il modello IA di questa fase"
+        className="inline-flex items-center gap-1.5 rounded-full bg-claude-bg px-2.5 py-1.5 text-[11px] font-medium text-claude transition hover:brightness-95"
+      >
+        <span className="h-1.5 w-1.5 rounded-full bg-claude" />
+        {sel ? selectionLabel(sel) : "…"}
+      </Link>
+    );
+  }
 
   return (
     <div className="mt-2 flex items-center gap-2 text-xs text-ink-soft">

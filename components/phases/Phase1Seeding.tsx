@@ -13,14 +13,14 @@ import { executeCommand, validateSeed, COMMANDS } from "@/lib/commands";
 import { Panel } from "../Workspace";
 import { ActorChip } from "../ui";
 import { GraphView } from "../GraphView";
+import type { PhaseProps } from "./types";
 import { SeedingGame } from "./SeedingGame";
 import { seedFromGame } from "@/lib/seedFromGame";
-import type { PhaseProps } from "./types";
 
 export function Phase1Seeding({ story, update, log, goPhase }: PhaseProps) {
   const [focus, setFocus] = useState<FocusRef | null>(null);
   const [building, setBuilding] = useState(false);
-  const [guided, setGuided] = useState(false);
+  const [guided, setGuided] = useState(false); // modo "gioco" (B3)
 
   // Esegue un comando sulla storia corrente e persiste (single source of truth).
   function run(name: string, params: Record<string, unknown>, by: "you" | "claude" = "you") {
@@ -68,6 +68,8 @@ export function Phase1Seeding({ story, update, log, goPhase }: PhaseProps) {
   // Avvia la chat partendo dalla bozza: l'IA riceve già lo scheletro.
   const started = (story.seedingChat?.length ?? 0) > 0 || !!story.chatStarted || built;
   const [mode, setMode] = useState<"intake" | "studio">(started ? "studio" : "intake");
+  // Su mobile le due superfici (le schede e la chat) si alternano con un tap.
+  const [tab, setTab] = useState<"storia" | "chat">("storia");
 
   function startChat() {
     const opening = composeOpening(story);
@@ -76,7 +78,8 @@ export function Phase1Seeding({ story, update, log, goPhase }: PhaseProps) {
     setMode("studio");
   }
 
-  // Modo guidato — il seeding come "gioco" (passo-passo). Alla fine mappa sul Seed.
+  // FASE 1a — Intake: la griglia che l'umano compila a mano (zero token).
+  // MODO GUIDATO — il seeding come "gioco" (passo-passo). Alla fine mappa sul Seed.
   if (guided) {
     return (
       <SeedingGame
@@ -92,15 +95,22 @@ export function Phase1Seeding({ story, update, log, goPhase }: PhaseProps) {
     );
   }
 
-  // FASE 1a — Intake: la griglia che l'umano compila a mano (zero token).
   if (mode === "intake" && !built) {
     return (
       <div className="space-y-4">
+        {/* Modo guidato — il "gioco" per piantare il seme passo-passo */}
         <button
           onClick={() => setGuided(true)}
-          className="w-full rounded-2xl border border-claude/30 bg-claude-bg/40 px-4 py-3 text-left text-sm font-medium text-claude transition hover:bg-claude-bg/70"
+          className="group flex w-full items-center gap-3 rounded-2xl border border-claude/25 bg-gradient-to-br from-claude-bg to-paper-2 p-4 text-left shadow-sm transition hover:shadow-md active:scale-[0.99]"
         >
-          ✨ Modo guidato — pianta il seme passo-passo (consigliato la prima volta)
+          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-claude text-lg text-white shadow-sm">✨</span>
+          <span className="min-w-0">
+            <span className="block font-semibold text-claude">Modo guidato</span>
+            <span className="block text-xs leading-snug text-ink-soft">Pianta il seme passo-passo, come un gioco — consigliato la prima volta.</span>
+          </span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="ml-auto shrink-0 text-claude transition-transform group-hover:translate-x-0.5" aria-hidden>
+            <path d="M9 6l6 6-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
         </button>
         <Intake
           story={story}
@@ -115,10 +125,38 @@ export function Phase1Seeding({ story, update, log, goPhase }: PhaseProps) {
   }
 
   return (
-    <div className="grid gap-4 lg:grid-cols-[1fr_minmax(320px,400px)]">
-      {/* Colonna sinistra: le schede scorrevoli, editabili, selezionabili */}
-      <div className="order-2 space-y-4 lg:order-1">
-        <CompletenessBar story={story} />
+    <div>
+      {/* MOBILE: due superfici, un tap per passare — le schede e la chat.
+          Su desktop convivono affiancate (sotto), qui niente segmenti. */}
+      <div className="mb-4 lg:hidden">
+        <div className="flex rounded-2xl border border-line bg-paper-3 p-1">
+          <button
+            onClick={() => setTab("storia")}
+            className={`flex-1 rounded-xl px-3 py-2.5 text-sm font-semibold transition ${tab === "storia" ? "bg-paper-2 text-ink shadow-sm" : "text-ink-soft"}`}
+          >
+            La storia
+          </button>
+          <button
+            onClick={() => setTab("chat")}
+            className={`flex flex-1 items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-sm font-semibold transition ${tab === "chat" ? "bg-paper-2 text-claude shadow-sm" : "text-ink-soft"}`}
+          >
+            Chat IA
+            {(story.seedingChat?.length ?? 0) > 0 && <span className="h-1.5 w-1.5 rounded-full bg-claude" />}
+          </button>
+        </div>
+        {/* il focus resta visibile in entrambe le superfici: sai sempre cosa "tiene in mano" l'IA */}
+        {focus && (
+          <div className="mt-2 flex items-center gap-2 rounded-xl bg-claude-bg px-3 py-2.5 text-xs">
+            <span className="font-semibold text-claude">in focus: {focus.label}</span>
+            <button onClick={() => setFocus(null)} aria-label="Togli il focus" className="ml-auto px-1 text-ink-soft hover:text-ink">✕</button>
+          </div>
+        )}
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-[1fr_minmax(320px,400px)]">
+        {/* La storia: schede editabili e selezionabili (toccale → focus) */}
+        <div className={`${tab === "storia" ? "block" : "hidden"} space-y-4 lg:order-1 lg:block`}>
+          <CompletenessBar story={story} />
 
         <Section title="Protagonista" focusKey={mkFocus("protagonist", "protagonist", "Protagonista")} focus={focus} setFocus={setFocus}>
           <div className="grid grid-cols-2 gap-2">
@@ -177,7 +215,7 @@ export function Phase1Seeding({ story, update, log, goPhase }: PhaseProps) {
           </div>
         </Section>
 
-        <Section title="Voce (crocette opzionali)" focus={focus} setFocus={setFocus}>
+        <Section title="Voce (crocette opzionali)" focus={focus} setFocus={setFocus} collapsible defaultOpen={false}>
           <div className="space-y-2">
             {VOICE_AXES.map((axis) => (
               <div key={axis.key}>
@@ -187,7 +225,7 @@ export function Phase1Seeding({ story, update, log, goPhase }: PhaseProps) {
                     const on = (story.seed.voice as any)[axis.key] === val;
                     return (
                       <button key={val} onClick={() => run("set_voice_axis", { axis: axis.key, value: on ? "" : val })}
-                        className={`rounded-full border px-2.5 py-1 text-xs transition ${on ? "border-claude bg-claude text-white" : "border-line bg-paper hover:bg-paper-2"}`}>
+                        className={`rounded-full border px-3 py-2 text-xs transition active:scale-95 ${on ? "border-claude bg-claude text-white shadow-sm" : "border-line bg-paper hover:bg-paper-3"}`}>
                         {val.replace(/_/g, " ")}
                       </button>
                     );
@@ -209,7 +247,7 @@ export function Phase1Seeding({ story, update, log, goPhase }: PhaseProps) {
               building ? (
                 <ChainAnimation />
               ) : (
-                <button onClick={build} className="w-full rounded-xl bg-ink py-3 text-sm font-semibold text-paper">
+                <button onClick={build} className="btn-ink w-full text-sm">
                   Costruisci la storia
                 </button>
               )
@@ -225,9 +263,10 @@ export function Phase1Seeding({ story, update, log, goPhase }: PhaseProps) {
         )}
       </div>
 
-      {/* Colonna destra: la chat con il focus (sticky su desktop) */}
-      <div className="order-1 lg:order-2 lg:sticky lg:top-5 lg:self-start">
-        <SeedingChat story={story} focus={focus} setFocus={setFocus} onSend={send} />
+        {/* La chat con l'IA: tiene il focus, sticky su desktop */}
+        <div className={`${tab === "chat" ? "block" : "hidden"} lg:order-2 lg:block lg:sticky lg:top-32 lg:self-start`}>
+          <SeedingChat story={story} focus={focus} setFocus={setFocus} onSend={send} />
+        </div>
       </div>
     </div>
   );
@@ -252,16 +291,16 @@ function SeedingChat({ story, focus, setFocus, onSend }: { story: Story; focus: 
 
   return (
     <Panel title="Seeding — l'IA ti segue" right={<ActorChip actor="claude" />}>
-      <div className="flex h-[60vh] min-h-[380px] flex-col lg:h-[600px]">
+      <div className="flex h-[64vh] min-h-[440px] flex-col lg:h-[600px]">
         <div className="flex-1 space-y-2.5 overflow-y-auto pr-1">
           {chat.length === 0 && (
-            <div className="rounded-2xl bg-claude-bg px-3 py-2 text-sm">
+            <div className="rounded-2xl bg-claude-bg px-3.5 py-2.5 text-sm leading-relaxed text-ink">
               Raccontami la storia come ti viene. Posso anche lavorare sulle schede qui sotto: toccane una e «la terrò in mano» mentre ne parliamo.
             </div>
           )}
           {chat.map((m) => (
             <div key={m.id} className={`flex ${m.who === "you" ? "justify-end" : "justify-start"}`}>
-              <div className={`max-w-[88%] rounded-2xl px-3 py-2 text-sm ${m.who === "you" ? "bg-you-bg" : "bg-claude-bg"}`}>
+              <div className={`max-w-[88%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed shadow-xs ${m.who === "you" ? "bg-you-bg" : "bg-claude-bg"}`}>
                 {m.focus && <span className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-claude">↳ {m.focus.label}</span>}
                 {m.text}
                 {m.commands && <span className="mt-1 block text-[10px] text-ink-soft">⚙ {m.commands.join(", ")}</span>}
@@ -276,9 +315,9 @@ function SeedingChat({ story, focus, setFocus, onSend }: { story: Story; focus: 
           <p className="mt-2 text-xs text-ink-soft">Prossimo: <b>{v.errors[0]}</b></p>
         )}
 
-        {/* chip del focus: l'IA sa di cosa parli */}
+        {/* chip del focus: l'IA sa di cosa parli (su mobile lo mostra la barra in alto) */}
         {focus && (
-          <div className="mt-2 flex items-center gap-2 rounded-lg bg-claude-bg/60 px-2.5 py-1.5 text-xs">
+          <div className="mt-2 hidden items-center gap-2 rounded-lg bg-claude-bg/60 px-2.5 py-1.5 text-xs lg:flex">
             <span className="font-semibold text-claude">focus: {focus.label}</span>
             <button onClick={() => setFocus(null)} className="ml-auto text-ink-soft hover:text-ink">✕</button>
           </div>
@@ -290,10 +329,10 @@ function SeedingChat({ story, focus, setFocus, onSend }: { story: Story; focus: 
             onChange={(e) => setDraft(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && submit()}
             placeholder={focus ? `parla di ${focus.label}…` : "scrivi…"}
-            className="min-w-0 flex-1 rounded-xl border border-line bg-paper px-3 py-2.5 text-base outline-none focus:border-claude"
+            className="field min-w-0 flex-1"
             enterKeyHint="send"
           />
-          <button onClick={submit} className="shrink-0 rounded-xl bg-claude px-4 text-sm font-semibold text-white">Invia</button>
+          <button onClick={submit} aria-label="Invia" className="btn-claude shrink-0 px-4 text-sm">Invia</button>
         </div>
       </div>
     </Panel>
@@ -303,18 +342,38 @@ function SeedingChat({ story, focus, setFocus, onSend }: { story: Story; focus: 
 // ---------------------------------------------------------------------------
 // Schede selezionabili / editabili
 // ---------------------------------------------------------------------------
-function Section({ title, children, focus, setFocus, focusKey }: {
-  title: string; children: React.ReactNode; focus: FocusRef | null; setFocus: (f: FocusRef | null) => void; focusKey?: FocusRef;
+function Section({ title, children, focus, setFocus, focusKey, collapsible, defaultOpen = true }: {
+  title: string; children: React.ReactNode; focus: FocusRef | null; setFocus: (f: FocusRef | null) => void; focusKey?: FocusRef; collapsible?: boolean; defaultOpen?: boolean;
 }) {
   const active = !!focusKey && focus?.kind === focusKey.kind && focus?.ref === focusKey.ref;
+  const [open, setOpen] = useState(defaultOpen);
+
+  if (collapsible) {
+    return (
+      <div className="card overflow-hidden">
+        <button
+          onClick={() => setOpen((v) => !v)}
+          aria-expanded={open}
+          className="flex w-full items-center justify-between gap-2 px-4 py-3.5 text-left transition hover:bg-paper-3"
+        >
+          <h3 className="eyebrow">{title}</h3>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="shrink-0 text-ink-soft transition-transform" style={{ transform: open ? "rotate(180deg)" : "none" }} aria-hidden>
+            <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </button>
+        {open && <div className="px-4 pb-4">{children}</div>}
+      </div>
+    );
+  }
+
   return (
-    <div className={`rounded-2xl border bg-paper-2 p-4 transition ${active ? "border-claude shadow-sm" : "border-line"}`}>
-      <div className="mb-2.5 flex items-center justify-between">
-        <h3 className="text-xs font-semibold uppercase tracking-wider text-ink-soft">{title}</h3>
+    <div className={`card p-4 transition ${active ? "border-claude shadow-md ring-1 ring-claude/20" : ""}`}>
+      <div className="mb-2.5 flex items-center justify-between gap-2">
+        <h3 className="eyebrow">{title}</h3>
         {focusKey && (
           <button onClick={() => setFocus(active ? null : focusKey)}
-            className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${active ? "bg-claude text-white" : "bg-line/70 text-ink-soft hover:bg-line"}`}>
-            {active ? "in focus" : "seleziona"}
+            className={`shrink-0 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider transition ${active ? "bg-claude text-white shadow-sm" : "bg-paper-3 text-ink-soft hover:bg-line"}`}>
+            {active ? "● in focus" : "seleziona"}
           </button>
         )}
       </div>
@@ -392,13 +451,13 @@ function CompletenessBar({ story }: { story: Story }) {
   const done = total - v.errors.length;
   const pct = Math.round((done / total) * 100);
   return (
-    <div className="rounded-2xl border border-line bg-paper-2 p-3">
+    <div className="card p-4">
       <div className="flex items-center justify-between text-sm">
         <span className="font-semibold">Il seme</span>
-        <span className="text-ink-soft">{v.errors.length === 0 ? "completo" : `${done}/${total}`}</span>
+        <span className={v.errors.length === 0 ? "font-semibold text-manus" : "text-ink-soft"}>{v.errors.length === 0 ? "✓ completo" : `${done}/${total}`}</span>
       </div>
-      <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-line">
-        <div className="h-full rounded-full bg-claude transition-all" style={{ width: `${pct}%` }} />
+      <div className="mt-2.5 h-2 overflow-hidden rounded-full bg-paper-3">
+        <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: v.errors.length === 0 ? "var(--color-manus)" : "var(--color-claude)" }} />
       </div>
       {story.updatedAt && <p className="mt-1.5 text-[11px] text-ink-soft">memoria salvata · {new Date(story.updatedAt).toLocaleString("it-IT", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}</p>}
     </div>
@@ -437,7 +496,7 @@ function BuiltGraph({ story, setFocus, focus, goPhase }: { story: Story; setFocu
           <KV k="Arco" v={TIME_SPANS[node.time_span_arc]} />
         </dl>
       </Section>
-      <button onClick={() => goPhase?.("prosa")} className="w-full rounded-xl bg-ink py-3 text-sm font-semibold text-paper">Vai alla prosa →</button>
+      <button onClick={() => goPhase?.("prosa")} className="btn-ink w-full text-sm">Vai alla prosa →</button>
     </div>
   );
 }
@@ -458,9 +517,9 @@ function Intake({ story, focus, setFocus, run, onStart, errors }: {
   const seed = story.seed;
   return (
     <div className="space-y-4 pb-28">
-      <div className="rounded-2xl border border-line bg-paper-2 p-4">
-        <h2 className="serif text-xl font-semibold">La bozza della storia</h2>
-        <p className="mt-1 text-sm text-ink-soft">
+      <div className="card p-5">
+        <h2 className="display text-2xl">La bozza della storia</h2>
+        <p className="mt-2 text-sm leading-relaxed text-ink-soft">
           Compili quello che già sai — lasci vuoto ciò che vuoi decidere insieme all'IA.
           Niente di tutto questo costa token: l'IA partirà <b>da qui</b>, non da zero.
         </p>
@@ -514,7 +573,7 @@ function Intake({ story, focus, setFocus, run, onStart, errors }: {
         </div>
       </Section>
 
-      <Section title="Spina narrativa — opzionale" focus={focus} setFocus={setFocus}>
+      <Section title="Spina narrativa — opzionale" focus={focus} setFocus={setFocus} collapsible defaultOpen={false}>
         <p className="mb-2 text-xs text-ink-soft">Se la sai già, scrivila. Altrimenti lasciala vuota: la costruisci con l'IA, è la parte dove serve davvero.</p>
         <div className="space-y-2">
           {SPINE.map((f) => (
@@ -523,7 +582,7 @@ function Intake({ story, focus, setFocus, run, onStart, errors }: {
         </div>
       </Section>
 
-      <Section title="Appunti liberi" focus={focus} setFocus={setFocus}>
+      <Section title="Appunti liberi" focus={focus} setFocus={setFocus} collapsible defaultOpen={false}>
         <p className="mb-2 text-xs text-ink-soft">Scarica qui qualsiasi cosa — frammenti, idee, no. L'IA li legge all'avvio.</p>
         <Field label="" value={story.intakeNotes ?? ""} multiline onSave={(v) => run("set_intake_notes", { notes: v })} placeholder="«vorrei un finale agrodolce…», «niente animali parlanti», un ricordo…" />
       </Section>
@@ -534,7 +593,7 @@ function Intake({ story, focus, setFocus, run, onStart, errors }: {
           <p className="hidden flex-1 text-xs text-ink-soft sm:block">
             {errors.length === 0 ? "Bozza pronta — l'IA può rifinire e costruire." : `${errors.length} campi ancora vuoti: l'IA ti aiuterà a completarli.`}
           </p>
-          <button onClick={onStart} className="flex-1 rounded-xl bg-ink py-3 text-sm font-semibold text-paper sm:flex-none sm:px-8">
+          <button onClick={onStart} className="btn-ink flex-1 text-sm sm:flex-none sm:px-8">
             Inizia con l'IA →
           </button>
         </div>

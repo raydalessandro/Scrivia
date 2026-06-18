@@ -78,7 +78,7 @@ export function Phase2Prosa({ story, update, log, goPhase }: PhaseProps) {
         {pages.length === 0 && !writing ? (
           <div className="py-10 text-center">
             <p className="text-ink-soft">L’IA scrive le pagine dal brief, una a una.</p>
-            <button onClick={generate} className="mt-4 rounded-xl bg-claude px-5 py-2.5 text-sm font-semibold text-white">
+            <button onClick={generate} className="btn-claude mt-4 text-sm">
               Genera la prosa
             </button>
           </div>
@@ -102,9 +102,9 @@ export function Phase2Prosa({ story, update, log, goPhase }: PhaseProps) {
             <div ref={endRef} />
             {!writing && pages.length > 0 && (
               <div className="flex flex-wrap gap-2 border-t border-line pt-3">
-                <button onClick={generate} className="rounded-lg border border-line px-3 py-1.5 text-sm hover:bg-paper">Rigenera</button>
+                <button onClick={generate} className="btn-soft text-sm">Rigenera</button>
                 {critic?.verdict === "PASS" && (
-                  <button onClick={() => goPhase?.("immagini")} className="ml-auto rounded-lg bg-ink px-4 py-1.5 text-sm font-semibold text-paper">
+                  <button onClick={() => goPhase?.("immagini")} className="btn-ink ml-auto text-sm">
                     Vai alle illustrazioni →
                   </button>
                 )}
@@ -123,7 +123,7 @@ export function Phase2Prosa({ story, update, log, goPhase }: PhaseProps) {
               <button
                 onClick={runCritic}
                 disabled={pages.length === 0 || writing}
-                className="mt-3 w-full rounded-xl bg-claude py-2 text-sm font-semibold text-white disabled:opacity-40"
+                className="btn-claude mt-3 w-full text-sm"
               >
                 Lancia il critic
               </button>
