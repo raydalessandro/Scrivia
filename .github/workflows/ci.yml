@@ -1,0 +1,44 @@
+# CI — esegue gli stessi gate "verdi" usati in locale per ogni area di test
+# (vedi docs/TEST_SPEC.md): test Vitest, typecheck dei test, typecheck del
+# progetto e build di produzione. Nessun segreto richiesto: il layer AI legge
+# le chiavi a runtime (non in build) e i test mockano la rete.
+
+name: CI
+
+on:
+  push:
+  pull_request:
+
+# Annulla run obsolete sullo stesso ref quando arrivano nuovi push.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: test + typecheck + build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install (npm ci)
+        run: npm ci
+
+      - name: Test (Vitest)
+        run: npm test
+
+      - name: Typecheck dei test
+        run: npm run typecheck:test
+
+      - name: Typecheck del progetto
+        run: npx tsc --noEmit
+
+      - name: Build (Next)
+        run: npm run build
