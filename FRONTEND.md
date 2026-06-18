@@ -65,12 +65,12 @@ alla **Headspace** solo nel “gioco”. Firma di Scrivia da mantenere: **carta*
 
 Dentro il workspace, le **4 fasi** + il **gioco**:
 
-| # | Fase | Componente | Sotto-modi |
+| # | Fase | Componente | Cosa è collegato al back |
 |---|---|---|---|
-| 1 | Progetta | `components/phases/Phase1Seeding.tsx` | **gioco** (`SeedingGame.tsx`) · intake · studio (chat+schede) |
-| 2 | Prosa | `components/phases/Phase2Prosa.tsx` | scrittura + critic |
-| 3 | Illustrazioni | `components/phases/Phase3Immagini.tsx` | **Passo 0 reference** + pagine |
-| 4 | Libro | `components/phases/Phase4Libro.tsx` | anteprima A5 / stampa |
+| 1 | Progetta | `components/phases/Phase1Seeding.tsx` | **gioco** (`SeedingGame.tsx`) · intake · studio: chat con **IA reale** (`/api/ai`, fallback interim a 501) + schede |
+| 2 | Prosa | `components/phases/Phase2Prosa.tsx` | prosa **IA in streaming** pagina-per-pagina · **brief** (sola lettura) · **critic a strati** (regex+strutturale sempre, semantico se c'è chiave) |
+| 3 | Illustrazioni | `components/phases/Phase3Immagini.tsx` | **Passo 0 reference** + pagine: bottone **Genera** (`/api/images`) o Manus **manuale** se non c'è chiave |
+| 4 | Libro | `components/phases/Phase4Libro.tsx` | anteprima A5 / stampa (deterministico) |
 
 Supporto front: `Stem.tsx` (lo stelo), `Ledger.tsx` (i tempi), `GraphView.tsx`,
 `ui.tsx` (`Pill`, `ActorChip`), `ai/ModelPicker.tsx`, `ai/PhaseModelChip.tsx`, `PWA.tsx`.
@@ -102,7 +102,20 @@ risultato. Le funzioni del back usate dal front (da **non** rinominare):
   `referenceGate`, `buildReferenceSheetPrompt`, `buildPagePrompts`, `bookStylesheet`.
 - **gioco → seme** (`lib/seedFromGame.ts`): `seedFromGame(GameState) → Seed`.
 - **ontologia/enum** (`lib/enums.ts`): `ACTOR_META` (colori/etichette attori), assi voce, ecc.
-- **AI** (`lib/ai/`): `getSelection`, `selectionLabel`, route `/api/ai`.
+- **AI — config** (`lib/ai/`): `getSelection`, `selectionLabel`, helper SSE `sseJson` (`lib/ai/sse`).
+- **AI — task M2** (`lib/ai/tasks/`): seeding `buildSeedingRequest`/`applySeedingTurn`;
+  prosa `buildProsaRequest`/`accumulateProseText`; critic `buildCriticRequest`/
+  `parseCriticResponse`/`mergeCriticVerdict`/`withSemanticPending`.
+- **critic deterministico** (`lib/audit.ts`): `auditDeterministic`.
+- **immagini** (`lib/images/`): `composeImagePrompt`; stato/forma via route.
+- **brief** (`lib/brief.ts`): prodotto al `build_node`, vive su **`story.brief`** (sola lettura nel front).
+- **route server-side** (la chiave resta sul server): `POST /api/ai` (stream e no-stream),
+  `POST/GET /api/images`. Il client **non** chiama mai `aiStream`/`generateImage` diretti:
+  passa per le route e legge l'SSE con `sseJson`.
+
+> **Regola di degradazione (importante per la UX).** Ogni punto-IA deve reggere il
+> **501 senza chiave**: seeding→interim+hint, prosa→esempio/stub+nota, critic→verdetto
+> deterministico+nota, immagini→modalità manuale. Non rimuovere questi fallback.
 
 **Checklist “non perdo funzioni” quando ritocco una fase:** mantieni le stesse
 chiamate al back (sopra) e la stessa props `PhaseProps`; cambia solo markup/stile.
@@ -133,3 +146,69 @@ npm run build          # build offline, deve passare
 
 Se `tsc` passa, il contratto front↔back è intatto: il back non è stato toccato e
 nessuna funzione è andata persa. Da qui, iterare l'estetica è sicuro.
+
+---
+
+## 7. Audit front↔back — stato al merge M2/M5/M6 (giu 2026)
+
+> Check fatto dall'**agente front** dopo i branch B4 (immagini) · B5 (brief) · B6
+> (seeding IA) · B7 (prosa IA) · B8 (critic). **Baseline blindata**: `npm run build`
+> verde, **`npm test` 168/168 verde**, `tsc --noEmit` 0 errori. Niente funzione persa
+> nei merge (i contratti front↔back hanno tenuto).
+
+### 7.1 Copertura — ogni funzione del back ha un punto sul front?
+
+| Capacità (back) | Modulo | Punto sul front | Stato |
+|---|---|---|---|
+| Seeding conversazionale IA (B6) | `lib/ai/tasks/seeding.ts` + `/api/ai` | Fase 1 · chat (`send()` async, stato `sending`) | ✅ collegato |
+| Prosa IA in streaming (B7) | `lib/ai/tasks/prosa.ts` + `/api/ai` | Fase 2 · `generate()` live, pagina per pagina | ✅ collegato |
+| Critic a strati (B8) | `lib/audit.ts` + `lib/ai/tasks/critic.ts` | Fase 2 · `runCritic()` (det + semantico) | ✅ collegato |
+| Generazione immagini (B4) | `lib/images/*` + `/api/images` | Fase 3 · bottone **Genera** per pagina (manuale se no chiave) | ✅ collegato |
+| **Writing brief** (B5) | `lib/brief.ts` → `story.brief` | Fase 2 · **pannello “Il brief — guida la scrittura”** (sola lettura) | ✅ **aggiunto in questo pass** |
+| Stato provider/chiave (per fase) | `/api/ai`, `/api/images` | `/impostazioni` (chip “chiave presente / manca”) | 🟡 solo in impostazioni |
+
+### 7.2 Quando il back cambia → cosa tocca il front (lookup anti-impazzimento)
+
+- **Nuovo comando** in `lib/commands.ts` → se è azione dell'autore, dagli un punto
+  in Fase 1 (campo/bottone). Se lo usa solo l'IA via tool, **niente UI**: già passa
+  da `toMcpTools()`/`applySeedingTurn`.
+- **Nuovo campo su `Story`/artefatto** (come è stato `brief`) → decidi se va **mostrato**.
+  Pattern: pannello collassabile sola-lettura accanto alla fase che lo usa.
+- **Nuovo `task` AI** (`lib/ai/tasks/<x>.ts`) → la fase che lo usa fa `POST /api/ai`
+  con `build<X>Request`, applica con la sua funzione pura, e **tiene il fallback 501**.
+- **Nuova fase** (es. il “Libro” montato B9, o una FASE 0 separata) → aggiungi il
+  ramo in `Workspace.tsx`, una voce in `PHASES` la porta il back; aggiorna §3 qui e i
+  test §6 (`test/Workspace.test.tsx`).
+- **Cambi di navigazione** (tab→stepper ecc.) → aggiorna `test/Workspace.test.tsx`
+  **insieme** (o segnala all'agente testing). Nessun `data-testid` oggi: i test UI
+  poggiano su **testo/comportamento** (“Inizia con l'IA”, conferma reference…): non
+  cambiarli alla leggera.
+
+### 7.3 Occasioni UX aperte (per la sessione dedicata)
+
+In ordine di valore/sforzo. Tutte **additive**, nessuna tocca il back.
+
+1. **Consapevolezza del modo (IA vs manuale)** 🟡 *medio valore, basso sforzo.*
+   Oggi scopri di essere senza chiave **solo dopo** un 501 (hint nel log). Mettere un
+   chip onesto e proattivo — “IA collegata” / “modalità manuale · collega una chiave”
+   — vicino ai bottoni che generano (Fase 1 chat, Fase 2 prosa, Fase 3 *Genera*),
+   con link a `/impostazioni`. Stato già disponibile da `/api/ai` e `/api/images`.
+2. **Stato provider immagini in Fase 3** 🟡. Prima dei bottoni *Genera*, dire se si va
+   su GPT-Image (collegato) o Manus (manuale), così “Genera” non sorprende.
+3. **Brief anche in Fase 1** ⬜ (dopo il *build*): un “ecco cosa scriverà l'IA” dà
+   subito controllo. Riusa il `BriefPanel` di Fase 2.
+4. **Campi ricchi del nodo/hook** (focal_action, atmosfera, palette, characters_present
+   da B1) e **`references[]`/`missing[]`** dei prompt-pagina: oggi parzialmente mostrati;
+   si possono rendere più leggibili in Fase 3 (anteprima reference allegate per pagina).
+5. **Streaming più “vivo”** in Fase 2: cursore di scrittura, conteggio parole/pagina,
+   indicatore di continuità. È già token-per-token: serve solo vestizione.
+6. **Voci-personaggio d'autore** (`characterVoices`/`narratorBrief`, B3): catturate nel
+   gioco, finiscono nel brief; potrebbero avere un riepilogo leggibile.
+7. **Modernizzazione commerciale** (rotta Craft/Things 3, vedi §2): home come landing,
+   onboarding del primo seme, micro-interazioni. Sessione a sé.
+
+### 7.4 Modifica di questo pass
+- **Aggiunto** `BriefPanel`/`BriefBody` in `components/phases/Phase2Prosa.tsx`
+  (sola lettura, collassabile): rende **visibile** il writing brief (`story.brief`),
+  unica funzione del back che prima non aveva alcun punto sul front. Additivo, nessun
+  contratto toccato, `npm test` 168/168 verde.
