@@ -154,9 +154,9 @@ quindi prioritari solo i nodali.
 
 | # | Caso | Stato | Dove |
 |---|---|---|---|
-| 7.1 | Seed completo → `build_node` → entità "da_generare", page prompt con `missing` | ✅ (manuale) | formalizzare |
-| 7.2 | Conferma tutte le reference → `allReferencesReady=true`; ogni page prompt ha `references` | ✅ (in 2.8) | e2e unico |
-| 7.3 | Riproducibilità trasversale: stesso seed+nonce → stesso `node`, stessi `entities.id`, stessi page prompt (a meno delle immagini) | ⬜ | da scrivere |
+| 7.1 | Seed completo → `build_node` → entità "da_generare", page prompt con `missing` | ✅ | `test/e2e.test.ts` |
+| 7.2 | Conferma tutte le reference → `allReferencesReady=true`; ogni page prompt ha `references` | ✅ | `test/e2e.test.ts` (+ §2.8) |
+| 7.3 | Riproducibilità trasversale: stesso seed+nonce → stesso `node`, stessi `entities.id`, stessi page prompt (a meno delle immagini) | ✅ | `test/e2e.test.ts` |
 
 ---
 
