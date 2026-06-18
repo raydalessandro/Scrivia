@@ -49,6 +49,6 @@ preferisci questo a stili sparsi nei componenti. Mobile-first, safe-area, tap ta
 ## Prima di consegnare (gate)
 - `npm run build` verde.
 - `npm test` verde (i test UI §6 sono la rete di sicurezza dei contratti front↔back).
-- Un commit chiaro in italiano. Feature branch; niente push su `main` senza OK.
+- Un commit chiaro in italiano. **Branch + PR, mai merge diretto su `main`** (vedi CLAUDE.md).
 
 > In dubbio (una scelta tocca un contratto o un principio del seme): **chiedi**.
