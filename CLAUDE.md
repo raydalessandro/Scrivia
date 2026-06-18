@@ -7,6 +7,25 @@ qualcosa. Scopo: muoversi veloci senza rompere i principi del sistema.
 La UI/prodotto attorno al **seme** (`seme/`): produce una storia illustrata in
 4 fasi, dove l'umano pianta e organizza e le IA lavorano. *"La verità è nel grafo."*
 
+## Router — chi lavora su cosa (orchestrazione)
+La repo è organizzata ad **agenti specializzati** in `.claude/agents/`. La sessione
+principale fa da **orchestratrice**: legge questo router e **delega al subagente
+giusto** (via il tool Agent) prima di toccare quell'area. Ogni agente parte dai
+suoi documenti e sa come comportarsi.
+
+| Tocchi… | Agente | Regole / doc |
+|---|---|---|
+| `app/` · `components/` · `app/globals.css` · `public/fonts/` (estetica, UI, layout) | **frontend** | `.claude/agents/frontend.md` + `FRONTEND.md` |
+| `test/` · `vitest.config` · CI | **testing** | `.claude/agents/testing.md` + `docs/TEST_SPEC.md` |
+| `lib/` (motore, comandi, layer AI, tipi) | **backend** *(prossimo)* | parità Python `seme/` + invarianti |
+| Supabase · persistenza · storage (M3) | **supabase** *(futuro)* | — |
+
+**Confine front/back (regola d'oro).** `lib/` è la *single source of truth*: non si
+tocca per l'estetica. Il front **legge** dal back e gli **passa** azioni via gli stessi
+contratti (export di `lib/`, comandi, tipi). Così cambiare il look non perde funzioni
+e cambiare il back non rompe la UI. Dettaglio in `FRONTEND.md`.
+Mappa completa degli agenti e come aggiungerne: `.claude/agents/README.md`.
+
 ## Principi da non violare (vengono dal seme)
 1. **Autorità umana.** L'umano dà il seme e sceglie (immagini, merge, pubblicazione).
    Niente azioni autonome irreversibili.
