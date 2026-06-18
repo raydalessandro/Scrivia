@@ -59,7 +59,7 @@ alla **Headspace** solo nel “gioco”. Firma di Scrivia da mantenere: **carta*
 
 | Schermo | Entry (`app/`) | Componente front | Note |
 |---|---|---|---|
-| Home / le storie | `app/page.tsx` | — | hero, schede storia, CTA |
+| Home / le storie | `app/page.tsx` | `components/visual` | hero, schede storia come **reperti vivi**, CTA |
 | Storia (workspace) | `app/story/[id]/page.tsx` | `components/Workspace.tsx` | header fisso, **stepper 4 fasi**, processo/registro |
 | Impostazioni IA | `app/impostazioni/page.tsx` | `components/ai/AISettings.tsx` | provider/modello/reasoning per fase |
 
@@ -74,6 +74,7 @@ Dentro il workspace, le **4 fasi** + il **gioco**:
 
 Supporto front: `Stem.tsx` (lo stelo), `Ledger.tsx` (i tempi), `GraphView.tsx`,
 `ui.tsx` (`Pill`, `ActorChip`), `ai/ModelPicker.tsx`, `ai/PhaseModelChip.tsx`, `PWA.tsx`.
+**Libreria visiva**: `components/visual/` (identità riconoscibile — `Reperto`; vedi §8).
 
 ---
 
@@ -212,3 +213,35 @@ In ordine di valore/sforzo. Tutte **additive**, nessuna tocca il back.
   (sola lettura, collassabile): rende **visibile** il writing brief (`story.brief`),
   unica funzione del back che prima non aveva alcun punto sul front. Additivo, nessun
   contratto toccato, `npm test` 168/168 verde.
+
+---
+
+## 8. Libreria visiva — `components/visual/` (pattern)
+
+Elementi riconoscibili che danno **identità** al front (linguaggio *"Patient
+Emergence"*), richiamati dagli schermi e **mai ridisegnati a mano**. Convenzioni
+complete in `components/visual/README.md`. **Tre regole:** (1) **niente hardcoding** —
+l'elemento "vivo" riceve lo **stato reale** della storia e cambia forma, derivato dai
+segnali del back (non da costanti sparse); (2) **deterministico** — stesso input → stesso
+disegno, niente flicker; (3) **solo token-colore** esistenti.
+
+**Membri**
+
+- **`Reperto`** — esemplare botanico che **cresce con la storia**. `stage` 0..4 da
+  `repertoStage(story)` (gli stessi segnali di `currentPhase`:
+  `node` / `prose` / `manus.imageUrl` / `stage`). `STAGE_META[stage]` dà numero romano,
+  parola (seme / voce / figura / forma) e colore-attore della "mano". **🌱 vivo.**
+  Call-site: card storia (`app/page.tsx`).
+- *(in arrivo, stessi principi)* `AssePercorso` (lo stepper come asse misurato),
+  `EmptyState` (tavola vuota), cartiglio / etichette cliniche.
+
+**Statico vs vivo.** Vivo = legge la storia e cambia (`Reperto`). Statico = cornice/
+identità (etichette, hairline, palette, tipografia). Il "vivo" non è animazione gratuita:
+è il *dato che diventa forma*.
+
+**Quando il back cambia** il modo di capire "a che punto è" una storia → si aggiorna
+**solo** `components/visual/stage.ts` (`repertoStage`), non i singoli schermi; il disegno
+non si tocca.
+
+**Aggiungere un membro:** nuovo `components/visual/<Nome>.tsx` (presentazionale,
+deterministico, token-only) → export in `index.ts` → riga qui e nella tabella del README.
