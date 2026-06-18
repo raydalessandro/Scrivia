@@ -33,27 +33,30 @@ Legenda: ✅ fatto · 🟡 in corso/prossimo · ⬜ pianificato.
 - **Layer AI isolato** (`lib/ai/`): Anthropic + DeepSeek, switch modello/reasoning,
   config per-fase, route d'aggancio `/api/ai`.
 - **Selettore IA in UI** (`/impostazioni`): provider/modello/reasoning per fase.
-- **Deploy** su Vercel da `main`.
+- **Brief di scrittura** (B5 `brief-ts`): `lib/brief.ts` produce il *writing brief*
+  deterministico al `build_node` (ricetta strutturale, voce, semi/eco, tabella
+  pagina-per-pagina) su `story.brief` — **zero token**. Visibile in Fase 2 (sola lettura).
+- **Generazione immagini diretta** (B4 `image-gen`): `lib/images/` (composePrompt +
+  provider `openai`/`manual`) e route **`/api/images`**; col tasto **Genera** in Fase 3,
+  o **modalità manuale** (Manus) se non c'è chiave. La chiave resta server-side.
+- **IA collegate alle fasi (M2)**:
+  - **Seeding reale** (B6 `ai-seeding`): `aiStream({task:"seeding"})` con **tool-use**
+    sui comandi del registry; fallback **interim** senza chiave.
+  - **Prosa in streaming** (B7 `ai-prosa`): pagina per pagina dal brief, con continuità;
+    consuma `characterVoices`/`narratorBrief` del seeding gioco (B3).
+  - **Critic a strati** (B8 `critic`): `lib/audit.ts` deterministico (regex+strutturale,
+    **sempre**) + strato **semantico** via `/api/ai` se c'è chiave (altrimenti *pending*).
+- **Blindatura dei processi (M1)**: suite **Vitest** completa (motore/parità, comandi,
+  reference, stages/store, layer AI, task M2, brief, immagini, e2e, smoke UI) +
+  **CI** (`.github/workflows/ci.yml`, Node 22, su push e PR) + **`npm run check`** (i 4 gate)
+  + runbook **`docs/TEST_MAP.md`**.
+- **Deploy** su Vercel da `main` (via PR). **Workflow git**: branch + PR, mai merge diretto.
 
 ## Prossimo 🟡
 
-### M1 — Blindare i processi (test) — *branch dedicata*
-- Test del **motore TS** a **parità** con la suite pytest del seme
-  (`seme/tests/`): determinismo, invarianti (copertura beat, soglia, semi,
-  varietà hook), enum. — ✅ **fatto** (B1: `test/engine.parity.test.ts`).
-- Smoke **reference → prompt-pagina** — ✅ **fatto** (B2: `test/reference.test.ts`).
-- Test del **registry comandi** (mutazioni, cache, validazione, `toMcpTools`).
-- Test del **layer AI** (resolve selezione, clampReasoning, parsing SSE, shape
-  richiesta per provider) con fetch mockato.
-- Smoke test delle route (`/`, `/story/[id]`, `/impostazioni`, `/api/ai`).
-- CI: build + test ad ogni push (SessionStart hook + workflow).
-
-### M2 — Collegare le IA alle fasi
-- **Seeding reale**: `aiStream({task:"seeding"})` con tool-use sui comandi del
-  registry; `composeOpening` diventa il system-context. Via `interpret()` interim.
-- **Prosa in streaming** dal brief (`SKILL_prosa`), pagina per pagina — consuma `characterVoices`/`narratorBrief` del seeding gioco (B3).
-- **Critic** come sub-agente isolato che torna il verdetto JSON (`SKILL_critic`).
-- Gestione chiavi (`ANTHROPIC_API_KEY`, `DEEPSEEK_API_KEY`) su Vercel.
+### Gestione chiavi & rifinitura M2
+- Chiavi (`ANTHROPIC_API_KEY`, `DEEPSEEK_API_KEY`, `OPENAI_API_KEY`) sulle env di Vercel.
+- Rifinire le UX di degradazione (501 senza chiave) e i prompt dei task IA sul campo.
 
 ## Pianificato ⬜
 
@@ -70,23 +73,35 @@ Legenda: ✅ fatto · 🟡 in corso/prossimo · ⬜ pianificato.
 - **Passo 0 — Reference visiva** (tappa esplicita, *tra* seeding/prosa e generazione):
   record d'entità → foglio di reference confermato → gate. — ✅ **fatto** (B2).
 - I prompt-pagina ora **allegano** le reference confermate (✅ B2).
-- Resta: sostituire Manus con **generazione diretta** (script TS, incl. eventuale
-  modello locale/gpt-image-2); slot immagine → **Storage**.
+- ✅ **Generazione diretta** via provider `openai` + route `/api/images`, con fallback
+  manuale Manus (B4 `image-gen`).
+- Resta: slot immagine → **Storage** (Supabase, M3); predisposizione **video**.
 
 ### M6 — Motore TS completo
 - ✅ **hook completi + prompt-pagina (manus) veri** in TS (B1+B2).
-- Resta: **brief testuale**, **montaggio/impaginazione** (libro A5) e **audit** in TS;
-  ritirare la dipendenza dal riferimento Python quando i test lo garantiscono.
+- ✅ **brief testuale** (B5 `brief.ts`) e ✅ **audit/critic** deterministico in TS
+  (B8 `audit.ts`).
+- Resta: **montaggio/impaginazione** (libro A5) in TS; ritirare la dipendenza dal
+  riferimento Python quando i test lo garantiscono.
 
 ### Trasversali
-- **Espansione voci-personaggio** (matrice archetipo × stress × ritmo): catturata nel seeding (B3), da consumare nel brief prosa (M2).
+- **Espansione voci-personaggio** (matrice archetipo × stress × ritmo): catturata nel
+  seeding (B3), ✅ consumata dal brief prosa (B5/B7).
 - Pacchetti-genere (es. `ninnananna`) lato TS.
 - Editor del libro / export PDF rifinito.
 - Accessibilità e i18n.
 
 ---
 
-## Branch in arrivo (ordine di dipendenza)
-1. **B1 `engine-parity`** — ✅ mergiato in `main`.
-2. **B2 `reference-phase`** — ✅ mergiato in `main`.
-3. **B3 `seeding-game`** — modo guidato + mapping `seedFromGame` + espansione voci. **Verificato** (dipende da B1).
+## Branch integrate (ordine di dipendenza)
+Tutte mergiate in `main` via PR a CI verde.
+1. **B1 `engine-parity`** — motore a parità col Python (M1 motore).
+2. **B2 `reference-phase`** — Passo 0 reference + prompt-pagina veri.
+3. **B3 `seeding-game`** — modo guidato + `seedFromGame` + espansione voci (dip. B1).
+4. **B4 `image-gen`** — generazione immagini diretta + `/api/images` (M5).
+5. **B5 `brief-ts`** — writing brief deterministico su `story.brief` (M6).
+6. **B6 `ai-seeding`** — seeding reale con tool-use (M2).
+7. **B7 `ai-prosa`** — prosa in streaming pagina-per-pagina (M2).
+8. **B8 `critic`** — critic a strati (deterministico + semantico) (M2).
+9. **Test harness + CI** — suite Vitest, `npm run check`, `TEST_MAP.md` (M1).
+10. **Front audit M2/M5/M6** — brief visibile in Fase 2 + `FRONTEND.md` allineato.
