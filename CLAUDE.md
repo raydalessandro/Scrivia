@@ -54,15 +54,21 @@ lib/enums.ts    canone EAR/grammatica (etichette UI), specchio di seme_config.ya
 seme/           IL MOTORE DI RIFERIMENTO (Python) + canone + esempio + pytest
 ```
 
-## Workflow Git (importante)
-- **Sviluppa su una feature branch.** Non committare direttamente su `main`.
-- **Non pushare su `main` senza permesso esplicito** dell'utente. `main` deploya
-  in produzione (Vercel) ad ogni push.
-- **Niente PR a meno che l'utente non lo chieda.**
-- Un cambiamento = un commit con messaggio chiaro (in italiano, come il resto).
-- L'utente lavora al motore in parallelo: **resta nella tua corsia** (UI,
-  componenti, layer) e tocca `lib/engine.ts` solo se concordato, per non
-  creare conflitti.
+## Workflow Git — REGOLA MADRE: branch + PR (mai merge diretto)
+**Ogni cambiamento passa da una feature branch e poi da una Pull Request. MAI un
+merge/push diretto su `main`** — vale per **qualsiasi agente**, sempre, anche per
+modifiche piccole (doc, config). È così che si tiene il vantaggio di git con gli
+agenti: ogni modifica è rivedibile, la CI gira sulla PR, `main` resta protetto.
+
+- **Sviluppa su una feature branch**; un cambiamento = un commit chiaro (in italiano).
+- **Apri una PR** verso `main` (MCP GitHub / `gh`). La **CI gira sulla PR** (push +
+  pull_request): si mergia **solo a verde**.
+- **`main` si aggiorna SOLO via PR mergiata** — quando l'utente dà l'ok. Niente
+  `git push origin HEAD:main`, niente fast-forward a mano sul `main`.
+- `main` deploya in produzione (Vercel) ad ogni aggiornamento → ragione in più per
+  passare sempre dalla PR.
+- **Prima di aprire la PR**: `npm run check` verde in locale (i 4 gate, = la CI).
+- Resta **nella tua corsia** (vedi router): non sconfinare nell'area di un altro agente.
 
 ## Prima di committare (obbligatorio)
 ```bash

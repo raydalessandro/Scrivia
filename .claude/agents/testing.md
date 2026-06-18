@@ -28,8 +28,8 @@ test rosso, pattern di rottura, `npm run check`) vedi **`docs/TEST_MAP.md`**.
 3. `npx tsc --noEmit` (progetto) 0 errori.
 4. `npm run build` verde.
 5. **Marca ✅** la riga in `docs/TEST_SPEC.md` col file del test.
-Un commit per area, messaggio chiaro in italiano. Feature branch; niente push su
-`main` senza OK. La **CI** (`.github/workflows/ci.yml`) rigira gli stessi gate.
+Un commit per area, messaggio chiaro in italiano. **Branch + PR, mai merge diretto
+su `main`** (vedi CLAUDE.md). La **CI** (`.github/workflows/ci.yml`) rigira gli stessi gate.
 
 ## Priorità
 Segui la sezione "Priorità di scrittura" di `TEST_SPEC.md`. Le righe già ✅ non si

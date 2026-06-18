@@ -30,7 +30,8 @@ L'**orchestratrice** non è un file: è la sessione principale guidata dal route
 3. Aggiorna questa tabella.
 
 ## Regole comuni a tutti gli agenti
-- Si sviluppa su **feature branch**; **mai push su `main` senza OK** (deploya).
+- **Branch + PR sempre, mai merge diretto su `main`** (regola madre in `CLAUDE.md`):
+  feature branch → `npm run check` verde → PR → si mergia a CI verde, con l'ok dell'utente.
 - **Build/test verdi prima di committare**: `npm run build`, e `npm test` se tocchi
   codice coperto. Un cambiamento = un commit chiaro (in italiano).
 - Resta **nella tua corsia**: non sconfinare nell'area di un altro agente; se serve,
