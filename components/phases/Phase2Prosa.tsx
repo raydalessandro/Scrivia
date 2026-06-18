@@ -120,7 +120,10 @@ export function Phase2Prosa({ story, update, log, goPhase }: PhaseProps) {
   }
 
   return (
-    <div className="grid gap-5 lg:grid-cols-[1fr_300px]">
+    <div className="space-y-5">
+      {/* Il brief che guida la scrittura (B5): artefatto del back, ora visibile e leggibile */}
+      <BriefPanel brief={story.brief} />
+      <div className="grid gap-5 lg:grid-cols-[1fr_300px]">
       <Panel
         title="Prosa"
         right={
@@ -193,6 +196,7 @@ export function Phase2Prosa({ story, update, log, goPhase }: PhaseProps) {
           {critic && <CriticChecklist v={critic} />}
         </Panel>
       </div>
+      </div>
     </div>
   );
 }
@@ -224,6 +228,45 @@ function CriticChecklist({ v }: { v: CriticVerdict }) {
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+// Il "writing brief" (lib/brief.ts, deterministico) è ciò da cui l'IA scrive la
+// prosa. Era invisibile sul front: qui diventa leggibile (sola lettura, collassabile).
+function BriefPanel({ brief }: { brief?: string }) {
+  const [open, setOpen] = useState(false);
+  if (!brief?.trim()) return null;
+  return (
+    <Panel
+      title="Il brief — guida la scrittura"
+      right={<ActorChip actor="det" />}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <p className="text-xs leading-relaxed text-ink-soft">
+          Cosa l’IA legge per scrivere: ricetta strutturale, voce, semi (eco interne) e
+          la tabella pagina-per-pagina. Deterministico, zero token.
+        </p>
+        <button onClick={() => setOpen((v) => !v)} className="btn-soft shrink-0 text-xs">
+          {open ? "Nascondi" : "Mostra"}
+        </button>
+      </div>
+      {open && <BriefBody md={brief} />}
+    </Panel>
+  );
+}
+
+function BriefBody({ md }: { md: string }) {
+  return (
+    <div className="mt-3 max-h-[460px] overflow-y-auto rounded-xl border border-line bg-paper p-3.5">
+      {md.split("\n").map((line, i) => {
+        if (line.startsWith("### ")) return <p key={i} className="eyebrow mt-3">{line.slice(4)}</p>;
+        if (line.startsWith("## ")) return <h4 key={i} className="display mt-4 text-base">{line.slice(3)}</h4>;
+        if (line.startsWith("# ")) return <h3 key={i} className="display mt-3 text-lg">{line.slice(2)}</h3>;
+        if (line.trim() === "") return <div key={i} className="h-2" />;
+        // righe di contenuto (incluse le tabelle markdown): mono per leggere l'allineamento
+        return <p key={i} className="whitespace-pre-wrap font-mono text-[12px] leading-relaxed text-ink-soft">{line}</p>;
+      })}
     </div>
   );
 }
