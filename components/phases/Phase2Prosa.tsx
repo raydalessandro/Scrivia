@@ -10,6 +10,9 @@ import { Panel } from "../Workspace";
 import { ActorChip, Stopwatch, Pill } from "../ui";
 import type { PhaseProps } from "./types";
 import { EXAMPLE_STORY } from "@/lib/example";
+import { buildProsaRequest, accumulateProseText } from "@/lib/ai/tasks/prosa";
+import { sseJson } from "@/lib/ai/sse";
+import type { StreamEvent } from "@/lib/ai/types";
 
 export function Phase2Prosa({ story, update, log, goPhase }: PhaseProps) {
   const [pages, setPages] = useState<ProsePage[]>(story.prose ?? []);
@@ -28,16 +31,42 @@ export function Phase2Prosa({ story, update, log, goPhase }: PhaseProps) {
     setPages([]);
     setCritic(undefined);
     const t0 = Date.now();
-    // In produzione: stream dall'API di Claude (skill/SKILL_prosa.md). Qui mostriamo
-    // il flusso, riusando la prosa d'esempio dove c'è, o uno stub onesto altrimenti.
+    // Prosa reale: stream dall'API (SKILL_prosa + brief), pagina per pagina. La chiave è
+    // server-side → POST /api/ai. Senza chiave (501) ricade sull'interim (esempio/stub).
     const out: ProsePage[] = [];
+    let noKey = false;
     for (const pp of plan) {
-      await tick(420);
-      const ex = EXAMPLE_STORY.prose?.find((p) => p.page === pp.page);
-      const text =
-        story.id === "esempio" && ex
+      let text = "";
+      if (!noKey) {
+        const req = buildProsaRequest({ ...story, prose: out }, pp.page); // prose: out → continuità
+        let res: Response | null = null;
+        try {
+          res = await fetch("/api/ai", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ ...req, stream: true }),
+          });
+        } catch { res = null; }
+        if (res && res.ok) {
+          const events: StreamEvent[] = [];
+          try {
+            for await (const ev of sseJson(res)) {
+              events.push(ev as StreamEvent);
+              setPages([...out, { page: pp.page, beat: pp.beat, text: accumulateProseText(events) }]); // live
+            }
+          } catch { /* fine stream */ }
+          text = accumulateProseText(events).trim();
+        } else {
+          noKey = true; // niente chiave o errore → passa all'interim per tutte le pagine
+        }
+      }
+      if (!text) {
+        await tick(180);
+        const ex = EXAMPLE_STORY.prose?.find((p) => p.page === pp.page);
+        text = story.id === "esempio" && ex
           ? ex.text
           : `«[pagina ${pp.page} · ${pp.beat}]» — qui Claude rende il beat dal brief, ~70 parole, registro dato. ${pp.note}`;
+      }
       out.push({ page: pp.page, beat: pp.beat, text });
       setPages([...out]);
     }
@@ -45,7 +74,12 @@ export function Phase2Prosa({ story, update, log, goPhase }: PhaseProps) {
     setWriteMs(ms);
     setWriting(false);
     update((s) => ({ ...s, prose: out }));
-    log({ actor: "claude", event: "prosa generata", detail: `${out.length} pagine`, durationMs: ms });
+    log({
+      actor: "claude",
+      event: noKey ? "prosa (interim — collega una chiave per la scrittura reale)" : "prosa generata",
+      detail: `${out.length} pagine`,
+      durationMs: ms,
+    });
   }
 
   async function runCritic() {
