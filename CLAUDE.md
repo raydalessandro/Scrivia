@@ -17,7 +17,8 @@ suoi documenti e sa come comportarsi.
 |---|---|---|
 | `app/` · `components/` · `app/globals.css` · `public/fonts/` (estetica, UI, layout) | **frontend** | `.claude/agents/frontend.md` + `docs/FRONTEND.md` |
 | `test/` · `vitest.config` · CI | **testing** | `.claude/agents/testing.md` + `docs/TEST_SPEC.md` |
-| `lib/` (motore, comandi, layer AI, tipi) **tranne** `store.ts` e `supabase/*` | **backend** | `.claude/agents/backend.md` + `docs/BACKEND.md` (parità Python `seme/` + invarianti) |
+| `lib/` harness deterministico (motore, comandi, tipi, brief/book/audit-verdetto/reference/pagePrompts) **tranne** `store.ts`/`supabase/*` e `ai/*`/`images/*` | **backend** | `.claude/agents/backend.md` + `docs/BACKEND.md` (parità Python `seme/` + invarianti) |
+| `lib/ai/*` · `lib/images/*` (chiamate ai modelli + generazione foto/video/audio; costi/limiti; MCP lato chiamata) | **ai** | `.claude/agents/ai.md` + `docs/AI_LAYER.md` (frontiera: facciata stabile + registry fresco) |
 | `lib/store.ts` · `lib/supabase/*` · migrazioni · bucket · auth (persistenza/storage, M3) | **supabase** | `.claude/agents/supabase.md` + `docs/SUPABASE_SPEC.md` |
 
 **Confine front/back (regola d'oro).** `lib/` è la *single source of truth*: non si
@@ -50,7 +51,8 @@ lib/commands.ts registry dei comandi (unica fonte di verità) + toMcpTools()
 lib/cache.ts    cache dei comandi puri
 lib/stages.ts   le 7 tappe dello stelo + le 4 fasi
 lib/store.ts    persistenza client (localStorage) — interfaccia sottile → Supabase
-lib/ai/         layer AI universale (types, registry, config, providers, client)
+lib/ai/         layer AI universale (types, registry, config, providers, client) — agente **ai**
+lib/images/     generazione immagini (facciata + provider openai/manual) — agente **ai**
 lib/enums.ts    canone EAR/grammatica (etichette UI), specchio di seme_config.yaml
 seme/           IL MOTORE DI RIFERIMENTO (Python) + canone + esempio + pytest
 ```
@@ -84,8 +86,8 @@ passare. Verifica i flussi che hai toccato (build verde è il minimo, non il mas
 - **Tutte le mutazioni di stato passano dai comandi** (`lib/commands.ts`). La UI
   e l'IA non scrivono lo `Story` a mano: chiamano `executeCommand`. Così restano
   log + cache + (domani) MCP coerenti.
-- **Tutte le chiamate LLM passano dal layer** (`lib/ai`). Mai chiamare un provider
-  direttamente da un componente o da una fase.
+- **Tutte le chiamate LLM passano dal layer** (`lib/ai`, corsia dell'agente **ai**). Mai
+  chiamare un provider direttamente da un componente o da una fase.
 - **Nessun segreto nel repo.** Chiavi solo nelle env (vedi `.env.example`).
 - Mantieni la palette/estetica "carta" (vars in `app/globals.css`).
 - Mobile-first; rispetta safe-area e tap target.
@@ -94,9 +96,10 @@ passare. Verifica i flussi che hai toccato (build verde è il minimo, non il mas
 - **Un comando** → una voce in `COMMANDS` (`lib/commands.ts`): `name`, `title`,
   `description`, `category`, `params`, `run`. Se è puro/read, marcalo `pure: true`
   (entra in cache). Diventa automaticamente un tool MCP via `toMcpTools()`.
-- **Un provider AI** → un adapter in `lib/ai/providers/` che implementa
-  `ProviderAdapter`, più una voce nel `registry.ts` (modelli + reasoning + caps).
-  La facciata e le fasi non cambiano.
+- **Un provider/modello AI o una modalità (immagine/video/audio)** → corsia dell'agente
+  **ai**: un adapter in `lib/ai/providers/` (o `lib/<modalità>/providers/`) che implementa
+  l'interfaccia adapter, più una voce nel `registry.ts` (modelli + reasoning + caps). La
+  facciata e le fasi non cambiano. Dettaglio in `docs/AI_LAYER.md`.
 - **Una fase** → un componente in `components/phases/` con la stessa firma
   (`PhaseProps`), e l'aggancio in `Workspace.tsx` + `lib/stages.ts`.
 - **Un pacchetto-genere** → segue il modello `seme/packs/` (hook a punti d'iniezione).

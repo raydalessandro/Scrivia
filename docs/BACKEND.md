@@ -16,18 +16,22 @@ LLM (seeding, prosa); tutto il resto è deterministico, riproducibile, a costo d
 zero.
 
 ## La corsia (cosa è tuo, cosa no)
-**Tuo:** tutto `lib/` **tranne** `store.ts` e `supabase/*`.
+**Tuo:** l'**harness deterministico** in `lib/` — tutto **tranne** `store.ts`/`supabase/*`
+(persistenza) e `ai/*`/`images/*` (intelligenza e generazione).
 
 | Non tuo | Di chi | Perché |
 |---|---|---|
+| `lib/ai/*`, `lib/images/*` (chiamate ai modelli + generazione foto/video/audio) | **ai** | la frontiera che evolve (modelli, costi, MCP) |
 | `lib/store.ts`, `lib/supabase/*`, migrazioni, bucket, auth | **supabase** | persistenza/storage (M3) |
 | `app/`, `components/`, `globals.css`, `public/fonts/` | **frontend** | estetica e UI |
 | `test/`, `vitest.config`, CI | **testing** | la rete che protegge i tuoi contratti |
 
-Tu **produci** i contratti; il front li **legge** e ti **passa** azioni; il testing li
-**blinda**. Se per fare il back serve l'area di un altro, **fermati e segnala**.
+Tu **produci** i contratti (e l'assembly: brief, verdetto, prompt-pagina, tool); il front li
+**legge** e ti **passa** azioni; l'agente **ai** consuma ciò che assembli e ti restituisce
+l'inferenza; il testing **blinda**. Se per fare il back serve l'area di un altro, **fermati e
+segnala**. Il seam con l'ai è in fondo (e in `docs/AI_LAYER.md`).
 
-## Mappa dei moduli (`lib/`, esclusi store/supabase)
+## Mappa dei moduli (`lib/`, esclusi store/supabase e ai/images)
 
 ### Cuore deterministico
 - **`engine.ts`** — il motore: `buildNode(seed)` (campiona la grammatica dalla `nonce`),
@@ -76,25 +80,13 @@ Tu **produci** i contratti; il front li **legge** e ti **passa** azioni; il test
   `toMcpTools()` la **stessa** lista diventa la MCP della prima fase. I comandi `pure`/read
   passano dalla cache.
 
-### Layer AI (`lib/ai/`, universale rispetto al provider)
-- **`index.ts`** — la facciata. **Lato client solo dati/tipi** (`types`,`registry`,`config`,
-  per i selettori UI); **solo server** (chiavi + `fetch`): `client.ts` e gli adapter.
-- **`types.ts`** — i tipi neutri: `CompletionRequest`/`Result`, `ProviderAdapter`,
-  `AITask`, `ReasoningLevel`, `AITool` (stessa forma di `toMcpTools()`).
-- **`registry.ts`** — i provider e i modelli (con `reasoning` + `caps`).
-- **`config.ts`** — la selezione **per-fase** (quale provider/modello/reasoning per
-  seeding/prosa/critic/…).
-- **`client.ts`** + **`providers/{anthropic,deepseek}.ts`** — `aiComplete`/`aiStream` e gli
-  adapter; **`sse.ts`** lo streaming.
-- **`tasks/{seeding,prosa,critic}.ts`** — i tre usi LLM: seeding conversazionale (con i
-  comandi come strumenti), prosa in streaming **brief-first**, critic **semantico** (strato
-  3 del cancello: non riscrive, giudica le "regole invisibili").
-
-### Immagini (`lib/images/`)
-- **`index.ts`** — facciata: sceglie `openai` se c'è la chiave, altrimenti `manual`.
-  **`composePrompt.ts`** compone il prompt; **`providers/{openai,manual}.ts`** le due
-  strade; **`types.ts`** i tipi. Le immagini restano un **cancello umano** (Manus): non
-  automatizzarle di nascosto.
+### Intelligenza e generazione → **agente ai** (fuori corsia)
+`lib/ai/*` (chiamate ai modelli) e `lib/images/*` (generazione foto/video/audio) **non** sono
+tuoi: sono dell'**agente ai** (la frontiera che evolve — modelli, costi, MCP). Manuale in
+**`docs/AI_LAYER.md`**. Da te dipendono via il **seam** (vedi sotto): tu **assembli** il brief
+e produci i tool, lui **rende** (prosa, critic, immagini). Quando estendi un comando o il
+motore in modo che a una fase AI serva un dato nuovo, lo **produci tu** e l'agente ai lo legge —
+non scrivi tu la chiamata al modello.
 
 ## La disciplina di parità (il cuore del mandato)
 `engine.ts` e i passi deterministici sono **port** di `seme/scripts/*.py`. La regola:
@@ -130,9 +122,9 @@ In parole:
 5. **`register`** ha varianza (banda d'età + neighbor-shift + override), non è un valore fisso.
 
 ## Il contratto a monte (cosa NON puoi rompere)
-Il front importa larga parte di `lib/` — `types`, `ai/types`, `enums`, `ai/config`,
-`images`, `stages`, `ai/sse`, `ai/registry`, `commands`, `book`, `audit`, le `ai/tasks`…
-Quindi:
+Il front importa larga parte di `lib/`. La **tua** parte: `types`, `enums`, `stages`,
+`commands`, `book`, `audit`, `example`, `reference`, `pagePrompts`, `seedFromGame`… (gli import
+`ai/*` e `images` che il front usa sono il contratto dell'**agente ai**, non tuo). Quindi:
 - **Export stabili.** Non rinominare/rimuovere ciò che è usato a monte (`buildNode`,
   `buildPagePlan`, `extractHooks`, `newNonce`, `executeCommand`, `COMMANDS`, `toMcpTools`,
   `deriveStages`, `PHASES`, `deriveEntities`, `buildBrief`, `buildPagePrompts`…).
@@ -140,25 +132,36 @@ Quindi:
   (in `engineTypes.ts`): i consumatori di `PagePlan` continuano a funzionare.
 - **Le mutazioni dai comandi.** UI e IA **non** scrivono lo `Story` a mano: chiamano
   `executeCommand`. Così restano coerenti log + cache + (domani) MCP.
-- **Le LLM dal layer.** Mai un provider chiamato da un componente o da una fase: sempre
-  via `lib/ai/`.
+- **L'inferenza all'agente ai.** Tu non chiami i provider e non orchestri il tool-use: il
+  layer `lib/ai/`/`lib/images/` è dell'agente ai. Tu gli passi l'**assembly** (brief, tool) e
+  consumi la sua resa (verdetto critic). Il seam è qui sotto.
+
+### Il seam con l'agente ai
+| Confine | Tu (backend, struttura) | Agente ai (inferenza) |
+|---|---|---|
+| Prosa | assembli il **brief** (`brief.ts`) | il task prosa lo *consuma* |
+| Audit | combini il **verdetto** + strati regex/strutturali (`audit.ts`) | il task critic (semantico) ti *alimenta* |
+| MCP | produci i **tool** (`toMcpTools()`) | li *passa* al modello, orchestra il tool-use |
+| Immagini | i **prompt-pagina** (`pagePrompts.ts`) + `stylesheet.ts` | la **generazione** (`lib/images/`) li *usa* |
+
+Se una fase AI ha bisogno di un **dato strutturato nuovo**, lo **produci tu** (comando/campo) e
+l'agente ai lo legge. Non sconfini nel layer; lui non sconfina nell'assembly.
 
 ## Come si estende (ricette)
 - **Un comando** → una voce in `COMMANDS` (`lib/commands.ts`): `name`,`title`,
   `description`,`category`,`params`,`run`. Se è puro/read marcalo `pure:true` (entra in
   cache). Diventa tool MCP via `toMcpTools()`. (La UI lo espone; se è "nuova funzione",
   avvisa che il front la deve mostrare → orchestratrice → agente frontend.)
-- **Un provider AI** → un adapter in `lib/ai/providers/` che implementa `ProviderAdapter`
-  + una voce nel `registry.ts` (modelli + reasoning + `caps`). Facciata e fasi **non**
-  cambiano.
+- **Un provider/modello AI, o un provider immagini/video/audio** → **non è tuo**: è
+  dell'**agente ai** (`docs/AI_LAYER.md`). Se per servirlo serve un dato strutturato nuovo, tu
+  produci il dato (comando/campo) e lo segnali.
 - **Un campo del motore** → tipo **opzionale** in `engineTypes.ts`; popolalo in
   `buildNode`/`extractHooks`; verifica che il fuzz resti 0; se serve, estendi il
   riferimento Python in parità.
-- **Un gate d'audit** → aggiungilo allo strato giusto (regex/strutturale in `audit.ts`,
-  semantico in `ai/tasks/critic.ts`), **a guasto indipendente**: non fonderlo con un altro
-  strato. Marca se è **duro** (→ FAIL) o **soft** (→ nota).
-- **Un provider immagini** → un adapter in `lib/images/providers/` + selezione nella
-  facciata. Le immagini restano un cancello umano.
+- **Un gate d'audit** → gli strati **regex/strutturale** e il **verdetto** sono tuoi
+  (`audit.ts`), **a guasto indipendente**: non fonderli. Lo strato **semantico** (il critic) è
+  dell'agente ai: se ti serve un nuovo segnale semantico, **coordina** con lui. Marca i tuoi
+  check **duro** (→ FAIL) o **soft** (→ nota).
 - **Un pacchetto-genere** → modello `seme/packs/` (hook a punti d'iniezione, drop-in che
   non tocca il core, P8).
 

@@ -18,7 +18,8 @@ lavora chi deve lavorare" senza perdere allineamento tra front e back.
 |---|---|---|---|
 | **frontend** | ✅ | `app/` · `components/` · `globals.css` · `public/fonts/` | `frontend.md` + `docs/FRONTEND.md` |
 | **testing** | ✅ | `test/` · vitest · CI | `testing.md` + `docs/TEST_SPEC.md` |
-| **backend** | ✅ | `lib/` (motore, comandi, ai, tipi) **tranne** `store.ts`/`supabase/*` | `backend.md` + `docs/BACKEND.md` |
+| **backend** | ✅ | `lib/` harness deterministico (motore, comandi, tipi, brief/audit/reference/…) **tranne** `store.ts`/`supabase/*` e `ai/*`/`images/*` | `backend.md` + `docs/BACKEND.md` |
+| **ai** | ✅ agente · frontiera in evoluzione | `lib/ai/*` · `lib/images/*` (modelli, generazione foto/video/audio, costi/limiti, MCP) | `ai.md` + `docs/AI_LAYER.md` |
 | **supabase** | ✅ agente pronto · M3 da eseguire | `lib/store.ts` · `lib/supabase/*` · migrazioni · bucket · auth | `supabase.md` + `docs/SUPABASE_SPEC.md` |
 
 L'**orchestratrice** non è un file: è la sessione principale guidata dal router di
@@ -54,3 +55,9 @@ API, automazioni, MCP, skill):
   codice coperto. Un cambiamento = un commit chiaro (in italiano).
 - Resta **nella tua corsia**: non sconfinare nell'area di un altro agente; se serve,
   segnala all'orchestratrice perché deleghi a chi di dovere.
+- **Il confine è il cancello (convenzione, non meccanismo).** Gli agenti **clonano la repo**
+  in ambienti arbitrari: non ci affidiamo a hook/permessi locali per bloccare gli sconfinamenti
+  (non sarebbero garantiti). Il cancello è la **regola scritta** in ogni agente: *"se devi
+  toccare X, FERMATI e segnala"*. Così l'agente, nel dubbio, non improvvisa mai in zona-danni —
+  ha già la mossa pronta (chiedere). Ogni agente dichiara **cosa tocca**, **cosa non tocca mai**,
+  e **cosa fa quando arriva al confine**.
