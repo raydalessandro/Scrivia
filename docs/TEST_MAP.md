@@ -151,7 +151,7 @@ seeding) → shim no-op **nel solo test** (vedi `Phase1Seeding.test.tsx`), mai n
 
 ## 7. Stato attuale (snapshot)
 
-Allineato all'ultimo `main`: **20 file di test, 187 test + 3 `todo`, tutti verdi**;
+Allineato all'ultimo `main`: **20 file di test, 190 test, 0 `todo`, tutti verdi**;
 `tsc` e `typecheck:test` 0 errori; `next build` OK.
 
 | File | Area | #test |
@@ -160,7 +160,7 @@ Allineato all'ultimo `main`: **20 file di test, 187 test + 3 `todo`, tutti verdi
 | `commands` | comandi §3 | 30 |
 | `reference` · `reference.unit` | reference/prompt §2 | 1 · 16 |
 | `stages.store` | stages/store §5 | 14 |
-| `ai` · `aiConfig` | layer AI base + contratto config §4 | 27 · 9 (+3 todo) |
+| `ai` · `aiConfig` | layer AI base + contratto config §4 | 27 · 12 |
 | `aiSeeding` · `aiProsa` · `aiCritic` | task AI (M2) | 7 · 8 · 16 |
 | `brief` · `book` | writing brief + montaggio libro (M6) | 8 · 10 |
 | `imageGen` | immagini (M5) | 7 |
