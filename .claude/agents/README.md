@@ -57,7 +57,41 @@ API, automazioni, MCP, skill):
   segnala all'orchestratrice perché deleghi a chi di dovere.
 - **Il confine è il cancello (convenzione, non meccanismo).** Gli agenti **clonano la repo**
   in ambienti arbitrari: non ci affidiamo a hook/permessi locali per bloccare gli sconfinamenti
-  (non sarebbero garantiti). Il cancello è la **regola scritta** in ogni agente: *"se devi
-  toccare X, FERMATI e segnala"*. Così l'agente, nel dubbio, non improvvisa mai in zona-danni —
-  ha già la mossa pronta (chiedere). Ogni agente dichiara **cosa tocca**, **cosa non tocca mai**,
-  e **cosa fa quando arriva al confine**.
+  (non sarebbero garantiti). Il cancello è la **regola scritta** in ogni agente. Ogni agente
+  dichiara **cosa tocca**, **cosa non tocca mai**, e **cosa fa quando arriva al confine** (le tre
+  clausole qui sotto). Così, nel dubbio, non improvvisa mai in zona-danni: ha già la mossa pronta.
+
+### Confini che dialogano (cosa fare *al* confine)
+Un confine sano non è un muro: è un **testimone che si passa bene**. Tre clausole, universali.
+
+1. **Passaggio del testimone — chi consegna.** Fai la **tua parte intera** (al 100% nella tua
+   corsia). Poi, al confine, il **default è: segnala all'orchestratrice e fermati**. Una **bozza
+   oltre confine è l'eccezione**, ammessa *solo se de-rischia davvero il passaggio* — dimostra che
+   il tuo lavoro regge, o sblocca concretamente chi riceve.
+   - **Quando NON bozzare:** se basta segnalare, **non bozzare**. *Il segnale non è un lasciapassare.*
+   - **Se bozzi:** minima, **reversibile**, visibilmente provvisoria; **commit isolato**; offri il
+     **revert già pronto**. E **in quarantena**: nulla — nel tuo lavoro o altrove — deve dipendere
+     da quella bozza finché non è ratificata (una bozza diventata portante non è più annullabile).
+   - **Ampiezza:** il minimo che sblocca e dimostra. Se **blindi per bene** il lavoro altrui, hai
+     **consumato la decisione** di chi quel lavoro lo possiede → è sconfino, non passaggio.
+
+2. **Ricezione del testimone — chi riceve.** La **blindatura definitiva è tua**: **riprendi in
+   carico** la bozza — riscrivila o accettala **esplicitamente**. *Una bozza ricevuta e mai ripresa
+   in carico è **debito**, non lavoro fatto.* (Senza questo gancio l'handoff è monco e le bozze
+   marciscono.)
+
+3. **Consegna contraddittoria.** Se le istruzioni **non possono essere vere insieme** (es. "rendi
+   verdi questi todo" + "non scriverne il corpo", quando i todo non hanno corpo), il **primo dovere
+   è nominare la contraddizione**, non indovinare. Poi **proponi la risoluzione minima** e fai la
+   parte **non-ambigua**: dai materiale per decidere, non solo un alt.
+
+**La catena di ratifica (autorità umana, P1).** L'attraversamento è un **artefatto con stato
+esplicito** — *debito* finché non *ratificato* (è "la verità è nel grafo" applicata ai confini):
+
+> chi consegna → **bozza (= debito)** · orchestratrice → **instrada e mostra** (non accetta codice
+> fuori-corsia da sola) · chi possiede l'area → **riprende in carico** (riscrive o accetta) · umano
+> → **ratifica al merge**.
+
+Il debito **si chiude** solo quando il proprietario lo prende in carico **e** l'umano mergia.
+Finché non è ratificato, conta come **debito**, non come fatto (combacia con *"`main` si aggiorna
+solo via PR, con l'ok dell'utente"*). Ogni agente **rimanda** a queste clausole, non le duplica.

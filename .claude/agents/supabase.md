@@ -46,3 +46,7 @@ i file + `COME_APPLICARE.md`; l'utente mergia a mano, l'agente non pusha da solo
 ## In dubbio
 Se una scelta tocca lo schema/RLS congelato, un principio di `CLAUDE.md`, o l'area di un altro
 agente, **chiedi** invece di decidere. Un passo alla volta.
+
+**I confini dialogano** (`.claude/agents/README.md` → "Regole comuni"): fai la tua parte intera e
+**segnala**; una bozza oltre confine è l'eccezione (solo se de-rischia, reversibile, in
+quarantena); **chi riceve la riprende in carico**; una bozza non ratificata è **debito**.

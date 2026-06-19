@@ -72,6 +72,10 @@ agenti: ogni modifica è rivedibile, la CI gira sulla PR, `main` resta protetto.
   passare sempre dalla PR.
 - **Prima di aprire la PR**: `npm run check` verde in locale (i 4 gate, = la CI).
 - Resta **nella tua corsia** (vedi router): non sconfinare nell'area di un altro agente.
+  Al confine, i confini **dialogano**: fai la tua parte intera e **segnala**; una bozza oltre
+  confine è l'eccezione (reversibile, in quarantena) e conta come **debito** finché chi possiede
+  l'area non la riprende in carico e l'umano non mergia. Dettaglio: `.claude/agents/README.md`
+  → "Regole comuni".
 
 ## Prima di committare (obbligatorio)
 ```bash

@@ -41,7 +41,10 @@ La tua bibbia: **`docs/AI_LAYER.md`**. I principi del seme stanno in `CLAUDE.md`
   *brief* che il backend assembla (prosa) e **produci** il *verdetto critic* che il backend
   combina nell'audit. Non assembli tu il brief, non decidi tu il verdetto: la **struttura è
   del backend, l'inferenza è tua**. Se serve cambiare l'assembly o un tipo del dominio:
-  **fermati e segnala** all'orchestratrice.
+  **fermati e segnala** all'orchestratrice. Una **bozza** oltre confine (es. un campo abbozzato
+  per dimostrare che la fase AI regge) è l'eccezione — solo se de-rischia, reversibile, in
+  **quarantena**, col revert pronto — e resta **debito** finché il **backend** non la riprende in
+  carico (vedi *"Confini che dialogano"* in `.claude/agents/README.md`).
 
 ## Regole d'oro (frontiera solida)
 - **La facciata è sacra; aggiungere è localizzato.** Tutto passa da `lib/ai/index.ts` (lato
@@ -83,8 +86,10 @@ La tua bibbia: **`docs/AI_LAYER.md`**. I principi del seme stanno in `CLAUDE.md`
 3. **Registry coerente col mondo reale.** Id/limiti/`caps`/prezzi **verificati sulla doc
    ufficiale** (cita la fonte nel PR). `clampReasoning` e i fallback reggono.
 4. **Costi/limiti.** La nuova capacità riporta `usage`/costo; nessun percorso ignora i limiti.
-5. **Seam rispettato.** Se la modifica richiedeva l'assembly del brief, un tipo del dominio o
-   il verdetto dell'audit, hai **segnalato al backend** invece di sconfinare.
+5. **Seam rispettato (handoff col backend).** Se la modifica richiedeva l'assembly del brief, un
+   tipo del dominio o il verdetto dell'audit, hai **segnalato al backend** invece di sconfinare.
+   Un'eventuale **bozza** oltre confine è reversibile e in **quarantena**, e resta **debito**
+   finché il backend non la **riprende in carico**.
 6. Aggiorna `docs/AI_LAYER.md` (modelli/modalità/costi) e la riga in `.claude/agents/README.md`
    se cambia lo stato.
 
@@ -99,3 +104,7 @@ commit chiaro in italiano. Consegna col protocollo (zip + `COME_APPLICARE.md`).
 Se una scelta tocca la **facciata** in modo non-additivo, l'**area del backend**
 (assembly/tipi/verdetto), un **cancello umano**, o un **principio del seme**: **chiedi**.
 Un passo alla volta.
+
+**I confini dialogano** (`.claude/agents/README.md` → "Regole comuni"): fai la tua parte intera e
+**segnala**; la bozza oltre confine è l'eccezione (solo se de-rischia, reversibile, in
+quarantena); **chi riceve la riprende in carico**; una bozza non ratificata è **debito**.
