@@ -14,20 +14,21 @@ sistema (la misura economica dell'ordine, §3.2 del doc cache) e **basso il cost
 navigazione** (P6). Tre mestieri: **instradare**, **delegare** (con contesto gestito),
 **ratificare**.
 
-## Due modalità d'esercizio (nessuna esclusiva, non vincolante)
-L'orchestrazione si esercita in due modi **complementari** — la disciplina (instrada, delega,
-ratifica, tieni magro) e la **catena di ratifica** (l'umano al merge) valgono in **entrambi**:
-- **Spawn degli agenti (cache-native).** L'orchestratrice apre gli agenti di corsia col tool
-  `Agent`, con contesto preparato e a cadenza (§4). È la modalità nativa dentro Claude Code, e
-  quella per cui è scritta la disciplina di §4.
-- **Integrazione di bundle (partner-mode).** L'umano lavora in una **chat qualsiasi**, produce un
-  *bundle* (file + `COME_APPLICARE.md` / patch) e lo porta da integrare. L'orchestratrice lo
-  applica su un branch, **diff-verifica** (niente regressioni, riferimenti che risolvono, confine
-  rispettato), fa girare i **4 gate**, apre la PR e mergia all'ok. Comodo e frequente, ma **un
-  riferimento, non l'unico flusso**.
+## Modalità: corrente (oggi) e bersaglio (domani)
+Due modi di operare, entrambi legittimi, da non confondere:
+- **Corrente (oggi, in Claude Code).** L'orchestrazione autonoma non gira ancora: il lavoro
+  arriva come **bundle preparati** (zip + `COME_APPLICARE`), prodotti con un agente o un umano.
+  Il rito dell'orchestratrice è di **integrazione**: applica la patch → **verifica col diff** →
+  `npm run check` (i 4 gate) → **PR** → merge a verde con l'ok dell'umano, **nell'ordine di
+  dipendenza** dei bundle. Qui la cache è in gran parte automatica (CC): l'orchestratrice
+  **asseconda e verifica** (§4.5), non guida.
+- **Bersaglio (domani, sullo spawner custom).** L'orchestratrice **lancia e gestisce gli agenti
+  da sé**, assemblando il contesto di ogni spawn (§4) e **guidando** la cache (TTL, cadenza,
+  blocco universale cross-agente). Qui vive il risparmio pieno.
 
-Le due convivono: si può lavorare tutto a spawn, tutto a bundle, o misto. Cambia *chi prepara il
-lavoro di corsia*; **non** cambiano i confini, i gate, né la ratifica umana.
+La maggior parte di questo documento descrive il **bersaglio**; il rito **corrente** sopra è
+ciò che si pratica finché lo spawner non esiste. Applicare un bundle umano **non** è uno spawn
+cache-native: è integrazione — e va benissimo così, oggi.
 
 ## 1. Instradare
 Il **router di `CLAUDE.md` è la fonte canonica** di chi tocca cosa. L'orchestratrice lo legge e
@@ -147,6 +148,20 @@ cache *perché è ordinato*, non perché qualcuno ha ottimizzato. In dettaglio:
 - **Codice di corsia** (`app/`, `lib/`, `test/`, …): **delegato** all'agente di corsia.
 - Modificare il file di un altro agente "per fare prima" è **sconfino**: la costituzione la fa
   l'orchestratrice *come orchestratrice*, non spawnando una corsia su un dominio che non è suo.
+
+## Stato e roadmap
+- **Fatto:** questa disciplina + la spiegazione all'orchestratrice (`orchestratrice.md`). Il
+  sistema agenti è già **cache-nativo per costruzione** (§5).
+- **Da fare (futuro, segnato in `docs/ROADMAP_INTEGRAZIONE.md`):** lo **spawner custom** sul
+  layer ai e il suo **SPEC master** (compiti atomici, **test come criteri d'accettazione**,
+  escalation point) — da scrivere *quando* si costruisce lo spawner, **non prima** (uno spec
+  scritto troppo presto è "una roadmap che va re-interpretata", §5.2 del doc cache). La
+  **fisica** sta già in `CACHE_COME_ARCHITETTURA.md`.
+- **Materiale di riferimento:** il **briefer/montatore-prompt di Scrivia** (`brief.ts`,
+  `pagePrompts.ts`, `stylesheet.ts` — port deterministico) **è la stessa architettura di cache a
+  livello di prompt**: estrazione deterministica → prefisso autosufficiente (P6), costanti
+  single-source (invariante in testa). È l'**implementazione di riferimento** del pattern da cui
+  attingere per lo spawner.
 
 ## Riferimenti
 - La fisica: `docs/CACHE_COME_ARCHITETTURA.md` (P1–P8, matrice provider, KPI).
