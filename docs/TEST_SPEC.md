@@ -122,7 +122,7 @@ ogni provider e parsano la risposta in forma neutra.
 | 4.8 | **DeepSeek `buildBody`**: system in `messages`; tool in formato OpenAI; `tool_choice` | ✅ | test/ai.test.ts |
 | 4.9 | **DeepSeek parse** (mock): `content`/`reasoning_content`/`tool_calls` (arguments JSON) → result; `finish_reason` mappato | ✅ | test/ai.test.ts |
 | 4.10 | `/api/ai` GET: shape (providers/defaults/configured); POST senza chiavi → 501; body senza `messages` → 400 | ✅ | test/ai.test.ts |
-| 4.11 | `config` — **contratto di selezione**: mai throw e selezione sensata con storage corrotto/override/clamp; roundtrip set/reset; `withModel`/`withReasoning` clampano. *Hardening (rivalidare provider+model vs registry) lasciato come 3 `it.todo` per il backend.* | ✅ | test/aiConfig.test.ts |
+| 4.11 | `config` — **contratto di selezione**: mai throw e selezione sensata con storage corrotto/override/clamp; roundtrip set/reset; `withModel`/`withReasoning` clampano. *Hardening attivo (3 test): modello rimosso dal registry → default del task; override parziale (solo provider) → niente coppia provider/model incoerente; task sconosciuto a runtime → niente provider/model undefined.* | ✅ | test/aiConfig.test.ts |
 
 ---
 
