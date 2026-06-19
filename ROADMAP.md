@@ -104,4 +104,4 @@ Tutte mergiate in `main` via PR a CI verde.
 7. **B7 `ai-prosa`** — prosa in streaming pagina-per-pagina (M2).
 8. **B8 `critic`** — critic a strati (deterministico + semantico) (M2).
 9. **Test harness + CI** — suite Vitest, `npm run check`, `TEST_MAP.md` (M1).
-10. **Front audit M2/M5/M6** — brief visibile in Fase 2 + `FRONTEND.md` allineato.
+10. **Front audit M2/M5/M6** — brief visibile in Fase 2 + `docs/FRONTEND.md` allineato.

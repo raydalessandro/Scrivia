@@ -129,5 +129,5 @@ Vedi **`ROADMAP.md`**. Regole per sviluppare e manutenere la repo: **`CLAUDE.md`
 La repo è organizzata ad **agenti specializzati** (front, test, e in arrivo
 backend/supabase). La sessione principale fa da **orchestratrice**: legge il
 *router* in **`CLAUDE.md`** e delega all'agente giusto in base all'area toccata.
-Definizioni e mappa: **`.claude/agents/`** (regole front in **`FRONTEND.md`**,
+Definizioni e mappa: **`.claude/agents/`** (regole front in **`docs/FRONTEND.md`**,
 test in **`docs/TEST_SPEC.md`**). Qualunque agente o sessione parte da lì.
