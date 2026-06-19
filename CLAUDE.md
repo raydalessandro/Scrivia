@@ -17,8 +17,8 @@ suoi documenti e sa come comportarsi.
 |---|---|---|
 | `app/` · `components/` · `app/globals.css` · `public/fonts/` (estetica, UI, layout) | **frontend** | `.claude/agents/frontend.md` + `docs/FRONTEND.md` |
 | `test/` · `vitest.config` · CI | **testing** | `.claude/agents/testing.md` + `docs/TEST_SPEC.md` |
-| `lib/` (motore, comandi, layer AI, tipi) | **backend** *(prossimo)* | parità Python `seme/` + invarianti |
-| Supabase · persistenza · storage · auth (M3) | **supabase** | `.claude/agents/supabase.md` + `docs/SUPABASE_SPEC.md` |
+| `lib/` (motore, comandi, layer AI, tipi) **tranne** `store.ts` e `supabase/*` | **backend** *(prossimo)* | parità Python `seme/` + invarianti |
+| `lib/store.ts` · `lib/supabase/*` · migrazioni · bucket · auth (persistenza/storage, M3) | **supabase** | `.claude/agents/supabase.md` + `docs/SUPABASE_SPEC.md` |
 
 **Confine front/back (regola d'oro).** `lib/` è la *single source of truth*: non si
 tocca per l'estetica. Il front **legge** dal back e gli **passa** azioni via gli stessi
