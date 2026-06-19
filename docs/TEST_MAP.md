@@ -17,7 +17,7 @@ In ordine, dal più veloce al più lento:
 
 | # | Comando | Cosa intercetta |
 |---|---|---|
-| 1 | `npm test` | logica/contratti rotti (Vitest, 18 file) |
+| 1 | `npm test` | logica/contratti rotti (Vitest, 20 file) |
 | 2 | `npm run typecheck:test` | i **test** non compilano più col sorgente (firme cambiate) |
 | 3 | `npx tsc --noEmit` | il **progetto** non compila (tipi) |
 | 4 | `npm run build` | la build Next si rompe (import, runtime di build) |
@@ -45,12 +45,14 @@ Tocchi un modulo a sinistra ⇒ aspettati che reagiscano i test a destra.
 | `lib/stages.ts` (deriveStages, currentPhase, ORDER, hasArtifact) | `stages.store`, `Workspace` |
 | `lib/store.ts` (loadStory/saveStory, EXAMPLE_STORY) | `stages.store` (+ `Workspace` con loadStory mockato) |
 | `lib/seedFromGame.ts` | `seedFromGame` |
-| `lib/ai/registry.ts` + `lib/ai/config.ts` (PROVIDERS, clampReasoning, DEFAULT_SELECTION) | `ai`, `ModelPicker` |
+| `lib/ai/registry.ts` (PROVIDERS, clampReasoning) | `ai`, `ModelPicker` |
+| `lib/ai/config.ts` (DEFAULT_SELECTION, getSelection/setSelection) | `ai`, `ModelPicker`, **`aiConfig`** (contratto: mai invalida/throw) |
 | `lib/ai/client.ts` · `sse.ts` · `providers/*` | `ai` (fetch **mockato**) |
 | `lib/ai/tasks/seeding.ts` | `aiSeeding` |
 | `lib/ai/tasks/prosa.ts` | `aiProsa` |
 | `lib/ai/tasks/critic.ts` + `lib/audit.ts` | `aiCritic` |
 | `lib/brief.ts` | `brief` |
+| `lib/book.ts` (assembleBook, renderBookHtml) | `book` |
 | `lib/images/*` (composeImagePrompt, generateImage, provider openai/manual) | `imageGen` (fetch **mockato**) |
 | `lib/enums.ts` (ACTOR_META, WORLD_FLAVORS, KIND_SCALE…) | trasversale: `engine.unit`, `reference.unit`, `commands` |
 | `lib/types.ts` · `engineTypes.ts` | trasversale (tipi) → gate **2/3** |
@@ -149,8 +151,8 @@ seeding) → shim no-op **nel solo test** (vedi `Phase1Seeding.test.tsx`), mai n
 
 ## 7. Stato attuale (snapshot)
 
-Allineato all'ultimo `main`: **18 file di test, 168 test, tutti verdi**; `tsc` e
-`typecheck:test` 0 errori; `next build` OK.
+Allineato all'ultimo `main`: **20 file di test, 187 test + 3 `todo`, tutti verdi**;
+`tsc` e `typecheck:test` 0 errori; `next build` OK.
 
 | File | Area | #test |
 |---|---|---|
@@ -158,9 +160,9 @@ Allineato all'ultimo `main`: **18 file di test, 168 test, tutti verdi**; `tsc` e
 | `commands` | comandi §3 | 30 |
 | `reference` · `reference.unit` | reference/prompt §2 | 1 · 16 |
 | `stages.store` | stages/store §5 | 14 |
-| `ai` | layer AI base §4 | 27 |
+| `ai` · `aiConfig` | layer AI base + contratto config §4 | 27 · 9 (+3 todo) |
 | `aiSeeding` · `aiProsa` · `aiCritic` | task AI (M2) | 7 · 8 · 16 |
-| `brief` | writing brief (M6) | 8 |
+| `brief` · `book` | writing brief + montaggio libro (M6) | 8 · 10 |
 | `imageGen` | immagini (M5) | 7 |
 | `e2e` | contratto end-to-end §7 | 3 |
 | `Workspace` · `Phase1Seeding` · `Phase3Immagini` · `ModelPicker` | smoke UI §6 (jsdom) | 5 · 2 · 2 · 3 |
