@@ -22,8 +22,11 @@ lavora chi deve lavorare" senza perdere allineamento tra front e back.
 | **ai** | ✅ agente · frontiera in evoluzione | `lib/ai/*` · `lib/images/*` (modelli, generazione foto/video/audio, costi/limiti, MCP) | `ai.md` + `docs/AI_LAYER.md` |
 | **supabase** | ✅ agente pronto · M3 da eseguire | `lib/store.ts` · `lib/supabase/*` · migrazioni · bucket · auth | `supabase.md` + `docs/SUPABASE_SPEC.md` |
 
-L'**orchestratrice** non è un file: è la sessione principale guidata dal router di
-`CLAUDE.md`. Se servirà un agente-router esplicito, si aggiunge qui come gli altri.
+L'**orchestratrice** ora ha un file — `orchestratrice.md` + `docs/ORCHESTRAZIONE.md` — ma resta
+una **categoria diversa** dai cinque qui sopra: è la **sessione principale** (il *delegante*),
+caricata via `--agent orchestratrice`, **non un delegato spawnabile**. Non le si delega; non si
+spawna. Governa instradamento, delega cache-native, ratifica, e le modifiche costituzionali (i
+file in `.claude/agents/*` e il router) — che restano lavoro dell'orchestratrice, non di una corsia.
 
 > **Fonte canonica delle aree: il router in `CLAUDE.md`.** Questa tabella lo
 > **rispecchia** (stesso confine di corsia): se cambi un'area, aggiorna **entrambi**.

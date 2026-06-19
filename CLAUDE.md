@@ -11,7 +11,9 @@ La UI/prodotto attorno al **seme** (`seme/`): produce una storia illustrata in
 La repo è organizzata ad **agenti specializzati** in `.claude/agents/`. La sessione
 principale fa da **orchestratrice**: legge questo router e **delega al subagente
 giusto** (via il tool Agent) prima di toccare quell'area. Ogni agente parte dai
-suoi documenti e sa come comportarsi.
+suoi documenti e sa come comportarsi. L'orchestratrice ha la sua disciplina —
+instradamento, delega cache-native, ratifica — in `.claude/agents/orchestratrice.md`
++ `docs/ORCHESTRAZIONE.md` (è la sessione principale, il *delegante*: non si spawna).
 
 | Tocchi… | Agente | Regole / doc |
 |---|---|---|
