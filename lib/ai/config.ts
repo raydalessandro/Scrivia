@@ -3,7 +3,7 @@
 // persisterà). Lato server, senza override, valgono i defaults.
 
 import type { AITask, ResolvedSelection, ProviderId, ReasoningLevel } from "./types";
-import { clampReasoning } from "./registry";
+import { clampReasoning, getModel } from "./registry";
 
 export const DEFAULT_SELECTION: Record<AITask, ResolvedSelection> = {
   // creativo / di giudizio → il più capace
@@ -32,7 +32,14 @@ function readOverrides(): Overrides {
 
 /** La selezione effettiva per un task (override utente sopra ai defaults). */
 export function getSelection(task: AITask): ResolvedSelection {
-  const sel = { ...DEFAULT_SELECTION[task], ...readOverrides()[task] };
+  // Base solida: il default del task, o "general" se il task è sconosciuto a
+  // runtime (così non si parte mai da provider/model undefined).
+  const base = DEFAULT_SELECTION[task] ?? DEFAULT_SELECTION.general;
+  const merged = { ...base, ...readOverrides()[task] };
+  // L'override si fida solo se la coppia provider/model esiste nel registry:
+  // un modello rimosso, o una coppia incoerente da override parziale, ricade
+  // sulla base. Il reasoning viene comunque riallineato al modello scelto.
+  const sel = getModel(merged.provider, merged.model) ? merged : base;
   return { ...sel, reasoning: clampReasoning(sel.provider, sel.model, sel.reasoning) };
 }
 

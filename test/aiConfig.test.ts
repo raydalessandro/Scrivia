@@ -23,6 +23,7 @@ import {
   withModel,
   withReasoning,
 } from "@/lib/ai/config";
+import { getModel } from "@/lib/ai/registry";
 
 const KEY = "scrivia.ai.selection.v1";
 beforeEach(() => localStorage.clear());
@@ -107,7 +108,22 @@ describe("config — contratto di selezione (mai invalida, mai throw)", () => {
   // --- HARDENING (contratto-bersaglio per il backend; oggi NON garantito) -----
   // Quando il backend rivalida provider+model contro il registry, togliere
   // `.todo` e questi devono passare senza altre modifiche al test.
-  it.todo("getSelection: un modello rimosso dal registry ricade sul default del task (oggi resta il modello morto)");
-  it.todo("getSelection: un override parziale (solo provider) non produce una coppia provider/model incoerente (oggi sì)");
-  it.todo("getSelection: un task sconosciuto a runtime non restituisce provider/model undefined (oggi sì)");
+  it("getSelection: un modello rimosso dal registry ricade sul default del task (oggi resta il modello morto)", () => {
+    localStorage.setItem(KEY, JSON.stringify({ prosa: { provider: "anthropic", model: "claude-removed-9", reasoning: "high" } }));
+    expect(getSelection("prosa")).toEqual(DEFAULT_SELECTION.prosa);
+  });
+  it("getSelection: un override parziale (solo provider) non produce una coppia provider/model incoerente (oggi sì)", () => {
+    // solo provider: il default prosa è anthropic/opus → cambiare provider in
+    // deepseek senza modello darebbe deepseek+opus (inesistente): deve ricadere.
+    localStorage.setItem(KEY, JSON.stringify({ prosa: { provider: "deepseek" } }));
+    const sel = getSelection("prosa");
+    expect(getModel(sel.provider, sel.model)).toBeDefined();
+    expect(getSelection("prosa")).toEqual(DEFAULT_SELECTION.prosa);
+  });
+  it("getSelection: un task sconosciuto a runtime non restituisce provider/model undefined (oggi sì)", () => {
+    const sel = getSelection("inesistente" as unknown as Parameters<typeof getSelection>[0]);
+    expect(sel.provider).toBeDefined();
+    expect(sel.model).toBeDefined();
+    expect(getModel(sel.provider, sel.model)).toBeDefined();
+  });
 });
