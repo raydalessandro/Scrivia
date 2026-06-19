@@ -7,17 +7,30 @@ import { useState } from "react";
 import { Panel } from "../Workspace";
 import { ActorChip, Pill } from "../ui";
 import type { PhaseProps } from "./types";
+import { assembleBook, renderBookHtml } from "@/lib/book";
 
 export function Phase4Libro({ story, update, log }: PhaseProps) {
   const [assembled, setAssembled] = useState(story.stage === "book");
   const [i, setI] = useState(0);
-  const pages = story.prose ?? [];
-  const imgFor = (p: number) => story.manus?.find((m) => m.page === p)?.imageUrl;
+  const book = assembleBook(story);
+  const pages = book.pages;
 
   function assemble() {
     setAssembled(true);
     update((s) => ({ ...s, stage: "book" }));
-    log({ actor: "det", event: "libro montato", detail: "libro.html → PDF A5", durationMs: 210 });
+    log({ actor: "det", event: "libro montato", detail: `${pages.length} pagine A5`, durationMs: 210 });
+  }
+
+  // Stampa/PDF reale: apre il documento-libro A5 in una finestra dedicata e stampa QUELLO
+  // (non l'app). Specchio di build_book.py → libro.html → Stampa/PDF dal browser.
+  function printBook() {
+    const w = window.open("", "_blank");
+    if (!w) return; // popup bloccato
+    w.document.write(renderBookHtml(story));
+    w.document.close();
+    w.focus();
+    setTimeout(() => w.print(), 300);
+    log({ actor: "det", event: "libro esportato", detail: "A5 → Stampa/PDF", durationMs: 0 });
   }
 
   if (!assembled)
@@ -37,7 +50,7 @@ export function Phase4Libro({ story, update, log }: PhaseProps) {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <Pill tone="ok">✓ montato · {pages.length} pagine</Pill>
-        <button onClick={() => window.print()} className="btn-ink text-sm">
+        <button onClick={printBook} className="btn-ink text-sm">
           Stampa / PDF A5
         </button>
       </div>
@@ -46,9 +59,9 @@ export function Phase4Libro({ story, update, log }: PhaseProps) {
       <div className="mx-auto w-full max-w-sm">
         <div className="aspect-[148/210] overflow-hidden rounded-lg border border-line bg-[#f0f5ec] shadow-lg">
           <div className="flex h-[58%] items-center justify-center bg-[#e7eee1] p-3">
-            {cur && imgFor(cur.page) ? (
+            {cur && cur.imageUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={imgFor(cur.page)} alt="" className="max-h-full max-w-full rounded shadow" />
+              <img src={cur.imageUrl} alt="" className="max-h-full max-w-full rounded shadow" />
             ) : (
               <div className="flex h-full w-full items-center justify-center rounded border border-dashed border-line-2 text-center text-xs text-ink-soft">
                 illustrazione p{cur?.page} — da Manus
