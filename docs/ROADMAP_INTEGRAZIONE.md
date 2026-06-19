@@ -112,3 +112,24 @@ Sulla numerazione M esistente + nuovi item:
 2. **B2** `reference-phase` (FASE 0 + page-prompts).
 3. **B3** `seeding-game` (UI + mapping + voci).
 4. Poi i rimanenti (F1.3 libro, F0.3 immagini, rifiniture) come da sezione sopra.
+
+---
+
+## Workstream agenti & cache degli spawn (separato dal motore)
+Stato: il **sistema agenti** è completo (5 corsie + orchestratrice) ed è **cache-nativo per
+costruzione**. Prossimo deliverable, **NON ora** (si fa quando si costruisce, non prima):
+
+- **Spawner custom** sul **layer ai** — un runtime che assembla il contesto di ogni agente
+  (invariante in testa, breakpoint condiviso) e chiama l'API diretta, per il **risparmio
+  cross-agente** (blocco universale condiviso da tutti gli spawn). Irrealizzabile in Claude Code
+  (ogni subagent ha cache separata, prefisso non riordinabile); realizzabile solo nello spawner.
+- **SPEC master dello spawner** — §5.2 di `docs/CACHE_COME_ARCHITETTURA.md`: compiti atomici,
+  **test come criteri d'accettazione** (prefisso byte-stabile, breakpoint giusti, universale
+  condiviso cross-agente, TTL/cadenza, allarme `cache_read=0`), escalation point. Write col
+  modello top, sul flat. La **fisica** è già in `CACHE_COME_ARCHITETTURA.md`.
+- **Riferimento d'implementazione:** il briefer/montatore-prompt di Scrivia (`brief.ts`,
+  `pagePrompts.ts`, `stylesheet.ts`) — stessa architettura di cache a livello di prompt.
+- **Razionale:** rende l'**orchestrazione autonoma** sostenibile (−55–75% sull'input degli
+  spawn) e diventa decisivo quando i servizi SDK/agenti escono dal flat (§5.3). L'orchestratrice
+  come **contenitrice costi** — funzione assente nei tool generici, portabile in qualsiasi repo
+  (il pattern; l'implementazione resta per-repo).
