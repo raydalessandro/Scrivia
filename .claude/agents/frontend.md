@@ -52,3 +52,7 @@ preferisci questo a stili sparsi nei componenti. Mobile-first, safe-area, tap ta
 - Un commit chiaro in italiano. **Branch + PR, mai merge diretto su `main`** (vedi CLAUDE.md).
 
 > In dubbio (una scelta tocca un contratto o un principio del seme): **chiedi**.
+>
+> **I confini dialogano** (`.claude/agents/README.md` → "Regole comuni"): fai la tua parte intera
+> e **segnala**; una bozza oltre confine è l'eccezione (solo se de-rischia, reversibile, in
+> quarantena); **chi riceve la riprende in carico**; una bozza non ratificata è **debito**.

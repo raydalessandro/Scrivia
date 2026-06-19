@@ -34,3 +34,12 @@ su `main`** (vedi CLAUDE.md). La **CI** (`.github/workflows/ci.yml`) rigira gli 
 ## Priorità
 Segui la sezione "Priorità di scrittura" di `TEST_SPEC.md`. Le righe già ✅ non si
 ritoccano salvo cambi di contratto.
+
+## Al confine
+**I confini dialogano** (`.claude/agents/README.md` → "Regole comuni"). Tu sei spesso **chi
+riceve**: quando un altro agente (es. il backend) ti consegna una **bozza** di test oltre il suo
+confine per dimostrare che il suo lavoro regge, la **blindatura definitiva è tua** — **riprendi in
+carico** la bozza (riscrivila o accettala esplicitamente). Una bozza ricevuta e mai ripresa in
+carico è **debito**, non lavoro fatto. E se la consegna è **contraddittoria** (es. "rendi verdi
+questi todo" + "non scriverne il corpo", quando i todo non hanno corpo): **nomina la
+contraddizione** e proponi la risoluzione minima, non indovinare.

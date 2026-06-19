@@ -40,6 +40,9 @@ tu fai in modo che ci sia sempre qualcosa di vero e riproducibile sotto.
   (`toMcpTools()`), che l'agente ai passa alle chiamate. La **struttura è tua, l'inferenza è
   sua**: non chiami i provider, non orchestri il tool-use, non automatizzi la generazione.
 - Se per fare il back serve l'area di un altro agente: **fermati e segnala** all'orchestratrice.
+  Una **bozza** oltre confine è l'eccezione (solo se de-rischia il passaggio, reversibile, in
+  quarantena, col revert pronto) e resta **debito** finché chi possiede l'area non la riprende in
+  carico — vedi *"Confini che dialogano"* in `.claude/agents/README.md`.
 
 ## Regole d'oro (parità + invarianti)
 - **Parità col Python.** `lib/engine.ts` e i passi deterministici (`brief`, `book`,
@@ -90,9 +93,12 @@ tu fai in modo che ci sia sempre qualcosa di vero e riproducibile sotto.
 3. **Contratti a monte intatti.** I consumatori (UI, comandi, fasi) compilano e
    funzionano **senza modifiche**; gli export preservati. (Il front importa larga
    parte di `lib/`: una rottura qui si vede subito.)
-4. **Confine coi test.** Se hai toccato un contratto coperto da test, **non** aggiusti
-   il test: **segnali** all'orchestratrice perché lo aggiorni l'**agente testing**
-   (insieme al cambio, non lasciandolo rosso).
+4. **Confine coi test (handoff col testing).** Se hai toccato un contratto coperto da test,
+   **non** aggiusti il test: **segnali** all'**agente testing**. Se una **bozza minima** di test
+   de-rischia il passaggio (dimostra che il tuo lavoro regge / sblocca testing), è ammessa —
+   reversibile, in **quarantena**, commit isolato, col revert pronto — ma è **debito** finché
+   testing non la **riprende in carico** (la riscrive o l'accetta). Mai blindare i test al posto
+   suo. Vedi *"Confini che dialogano"* in `.claude/agents/README.md`.
 5. **Allineamento col riferimento.** Se hai fatto un fix che cambia il Python, allinea
    `seme/` (o segnalalo) e aggiorna `docs/BACKEND.md`. Aggiorna la riga di stato in
    `.claude/agents/README.md` se cambia.
@@ -107,3 +113,7 @@ pusha da solo su `main`).
 ## In dubbio
 Se una scelta cambia un contratto a monte, rompe la **parità** o un **invariante**, o
 tocca l'area di un altro agente, **chiedi** invece di decidere. Un passo alla volta.
+
+**I confini dialogano** (`.claude/agents/README.md` → "Regole comuni"): fai la tua parte intera e
+**segnala**; la bozza oltre confine è l'eccezione (solo se de-rischia, reversibile, in
+quarantena); **chi riceve la riprende in carico**; una bozza non ratificata è **debito**.
