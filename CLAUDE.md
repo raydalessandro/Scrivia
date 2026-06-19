@@ -15,16 +15,17 @@ suoi documenti e sa come comportarsi.
 
 | Tocchi… | Agente | Regole / doc |
 |---|---|---|
-| `app/` · `components/` · `app/globals.css` · `public/fonts/` (estetica, UI, layout) | **frontend** | `.claude/agents/frontend.md` + `FRONTEND.md` |
+| `app/` · `components/` · `app/globals.css` · `public/fonts/` (estetica, UI, layout) | **frontend** | `.claude/agents/frontend.md` + `docs/FRONTEND.md` |
 | `test/` · `vitest.config` · CI | **testing** | `.claude/agents/testing.md` + `docs/TEST_SPEC.md` |
 | `lib/` (motore, comandi, layer AI, tipi) | **backend** *(prossimo)* | parità Python `seme/` + invarianti |
-| Supabase · persistenza · storage (M3) | **supabase** *(futuro)* | — |
+| Supabase · persistenza · storage · auth (M3) | **supabase** | `.claude/agents/supabase.md` + `docs/SUPABASE_SPEC.md` |
 
 **Confine front/back (regola d'oro).** `lib/` è la *single source of truth*: non si
 tocca per l'estetica. Il front **legge** dal back e gli **passa** azioni via gli stessi
 contratti (export di `lib/`, comandi, tipi). Così cambiare il look non perde funzioni
-e cambiare il back non rompe la UI. Dettaglio in `FRONTEND.md`.
-Mappa completa degli agenti e come aggiungerne: `.claude/agents/README.md`.
+e cambiare il back non rompe la UI. Dettaglio in `docs/FRONTEND.md`.
+Mappa completa degli agenti, **la convenzione (dove vivono agente e doc-compagno)** e
+come aggiungerne: `.claude/agents/README.md`.
 
 ## Principi da non violare (vengono dal seme)
 1. **Autorità umana.** L'umano dà il seme e sceglie (immagini, merge, pubblicazione).

@@ -45,4 +45,4 @@ colore-attore per le didascalie.
 ## Aggiungere un membro
 
 Crea `components/visual/<Nome>.tsx` (presentazionale, deterministico, token-only),
-esportalo da `index.ts`, aggiungilo alla tabella sopra e a `FRONTEND.md` §3/§8.
+esportalo da `index.ts`, aggiungilo alla tabella sopra e a `docs/FRONTEND.md` §3/§8.

@@ -10,7 +10,7 @@ Sei lo specialista del front di Scrivia. Il front è importante: è l'app che si
 rendere il back **bello e usabile**, senza mai romperlo né nascondergli funzioni.
 
 ## Leggi prima di lavorare
-1. **`FRONTEND.md`** (radice) — il confine front/back, il design system
+1. **`docs/FRONTEND.md`** — il confine front/back, il design system
    (`app/globals.css`), la mappa schermi↔back, il contratto front↔back. È la tua bibbia.
 2. Il `CLAUDE.md` (principi del seme, workflow git).
 
@@ -27,7 +27,7 @@ rendere il back **bello e usabile**, senza mai romperlo né nascondergli funzion
 Quando rifai o ritocchi uno schermo, le funzioni già collegate non devono sparire.
 Procedi così:
 1. **Inventario prima.** Elenca cosa quello schermo legge/aziona dal back (quali
-   export di `lib/`, quali comandi, quali campi dei tipi). La mappa in `FRONTEND.md §3`
+   export di `lib/`, quali comandi, quali campi dei tipi). La mappa in `docs/FRONTEND.md §3`
    è il punto di partenza.
 2. **Copertura.** Ogni funzione del back rilevante per quello schermo deve avere un
    punto nella UI **o** essere esplicitamente fuori scope (annotalo). Se il back ha
@@ -37,7 +37,7 @@ Procedi così:
 4. **Hook dei test.** Mantieni i `data-testid` e le strutture su cui poggiano i test
    UI (§6 di `TEST_SPEC`): se cambi la navigazione (es. tab→stepper), aggiorna i test
    **insieme** o segnala perché lo faccia l'agente testing — non lasciarli rossi.
-5. **Aggiorna `FRONTEND.md §3`** se aggiungi/sposti uno schermo o un sotto-modo.
+5. **Aggiorna `docs/FRONTEND.md §3`** se aggiungi/sposti uno schermo o un sotto-modo.
 
 ## Design system (dove cambiare il look)
 Tutto parte da **`app/globals.css`** (`@theme`, `@layer components`): colori-attore
