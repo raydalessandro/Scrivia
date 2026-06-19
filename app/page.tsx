@@ -2,11 +2,20 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { loadStories, newStory, saveStory } from "@/lib/store";
 import { deriveStages } from "@/lib/stages";
 import { Reperto, repertoStage, STAGE_META } from "@/components/visual";
 import type { Story } from "@/lib/types";
-import { useRouter } from "next/navigation";
+import { Shell, Sheet } from "@/components/shell";
+
+// Panoramica statica delle 4 fasi (onboarding) — non un tracker live.
+const PHASES = [
+  { n: "1", label: "Progetta la storia", gate: false },
+  { n: "2", label: "Scrivi la prosa", gate: true },
+  { n: "3", label: "Le illustrazioni", gate: true },
+  { n: "4", label: "Monta il libro", gate: false },
+];
 
 export default function Home() {
   const [stories, setStories] = useState<Story[]>([]);
@@ -21,114 +30,147 @@ export default function Home() {
   }
 
   return (
-    <main className="mx-auto max-w-3xl px-5 pb-24 pt-5" style={{ paddingTop: "calc(1.25rem + env(safe-area-inset-top))" }}>
-      <div className="flex justify-end">
-        <Link
-          href="/impostazioni"
-          className="inline-flex items-center gap-1.5 rounded-full border border-line bg-paper-2 px-3 py-2 text-xs font-medium text-ink-soft shadow-xs transition hover:bg-paper-3 hover:text-ink"
-        >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
-            <path d="M12 15a3 3 0 100-6 3 3 0 000 6z" stroke="currentColor" strokeWidth="1.8" />
-            <path d="M19.4 13a1.7 1.7 0 00.3 1.9l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-2.9 1.2v.2a2 2 0 11-4 0v-.1A1.7 1.7 0 005 17.7l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00-1.2-2.9H.8a2 2 0 110-4h.1A1.7 1.7 0 002.3 5l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.9.3H7a1.7 1.7 0 001-1.5V.8a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.9-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.9V7a1.7 1.7 0 001.5 1h.2a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z" stroke="currentColor" strokeWidth="1.2" transform="translate(1.6 1.6) scale(0.92)" />
-          </svg>
-          Modelli IA
-        </Link>
-      </div>
+    <Shell>
+      <Sheet>
+        {/* masthead prodotto */}
+        <div className="text-center">
+          <div className="inline-block">
+            <Reperto stage={4} size={50} />
+          </div>
+          <p className="eyebrow mt-2">Scrivia</p>
+          <h1 className="display mx-auto mt-1.5 max-w-xs text-[2rem] leading-[1.05]">
+            Far crescere una storia
+          </h1>
+          <p className="mx-auto mt-3 max-w-xs text-[13px] leading-relaxed text-ink-soft">
+            Tu pianti il seme e organizzi. Da lì lavorano le IA — il processo
+            resta chiaro, fase per fase.
+          </p>
+        </div>
 
-      <header className="reveal mt-6 text-center">
-        <Seedling />
-        <p className="eyebrow mt-4">Scrivia</p>
-        <h1 className="display mx-auto mt-1.5 max-w-md text-[2.6rem] leading-[1.05]">Far crescere una storia</h1>
-        <p className="mx-auto mt-4 max-w-md text-[15px] leading-relaxed text-ink-soft">
-          Tu pianti il seme e organizzi la storia. Da lì in poi lavorano le IA —
-          il processo resta chiaro, con i tempi, fase per fase.
-        </p>
-      </header>
+        {/* asse del lavoro: panoramica delle 4 fasi */}
+        <section className="mt-7">
+          <p className="eyebrow">Come cresce una storia</p>
+          <div className="relative mt-3.5 pt-1">
+            <div className="absolute left-1.5 right-1.5 top-2.5 h-px bg-line" />
+            <ol className="relative flex justify-between">
+              {PHASES.map((p) => (
+                <li key={p.n} className="w-[23%] text-center">
+                  <span className="mx-auto block h-2.5 w-px bg-ink" />
+                  <span className="mt-1.5 inline-flex h-[22px] w-[22px] items-center justify-center rounded-full border border-line bg-paper-2 text-xs font-bold text-ink-faint">
+                    {p.n}
+                  </span>
+                  <span className="mt-1.5 block text-[9.5px] leading-tight text-ink-soft">
+                    {p.label}
+                  </span>
+                  {p.gate ? (
+                    <span className="serif mt-1 inline-block text-[8px] italic tracking-wide text-erba">
+                      mano
+                    </span>
+                  ) : (
+                    <span className="mt-1 block text-[8px] tracking-[0.12em] text-det">
+                      · · ·
+                    </span>
+                  )}
+                </li>
+              ))}
+            </ol>
+          </div>
+        </section>
 
-      <div className="mt-10 flex items-center justify-between gap-3">
-        <h2 className="eyebrow">Le mie storie</h2>
-        <button onClick={plant} className="btn-ink text-sm">
-          <span className="text-base leading-none">＋</span> Pianta un seme
-        </button>
-      </div>
+        {/* collezione */}
+        <div className="mt-7 flex items-baseline justify-between border-b border-line pb-2">
+          <h2 className="eyebrow">
+            Le mie storie{stories.length ? ` · ${stories.length}` : ""}
+          </h2>
+          <button type="button" onClick={plant} className="serif text-[13px] italic text-erba">
+            ＋ pianta un seme
+          </button>
+        </div>
 
-      <div className="mt-4 grid gap-3 sm:grid-cols-2">
-        {stories.map((s) => (
-          <StoryCard key={s.id} story={s} />
-        ))}
-      </div>
-
-      <p className="mt-12 text-center text-xs text-ink-faint">
-        seme — un seme di sistema. Tu la visione, l’IA il lavoro.
-      </p>
-    </main>
+        {stories.length === 0 ? (
+          <div className="py-10 text-center">
+            <p className="text-sm text-ink-soft">Nessuna storia, ancora.</p>
+            <button type="button" onClick={plant} className="btn-ink mt-4 text-sm">
+              <span className="text-base leading-none">＋</span> Pianta il primo seme
+            </button>
+          </div>
+        ) : (
+          <ul className="mt-1">
+            {stories.map((s, i) => (
+              <StoryRow
+                key={s.id}
+                story={s}
+                code={String(i + 1).padStart(3, "0")}
+                last={i === stories.length - 1}
+              />
+            ))}
+          </ul>
+        )}
+      </Sheet>
+    </Shell>
   );
 }
 
-function StoryCard({ story }: { story: Story }) {
+function StoryRow({
+  story,
+  code,
+  last,
+}: {
+  story: Story;
+  code: string;
+  last: boolean;
+}) {
   const stages = deriveStages(story);
   const done = stages.filter((s) => s.state === "done").length;
   const st = repertoStage(story);
   const sm = STAGE_META[st];
   return (
-    <Link
-      href={`/story/${story.id}`}
-      className="card group flex gap-3.5 p-4 transition hover:-translate-y-0.5 hover:shadow-md"
-    >
-      {/* il reperto vivo: cresce con la storia (alimentato da repertoStage) */}
-      <Reperto stage={st} size={52} className="-mt-1 shrink-0 self-start" />
-
-      <div className="flex min-w-0 flex-1 flex-col">
-        <div className="flex items-start justify-between gap-2">
-          <h3 className="serif text-lg font-semibold leading-tight">{story.title}</h3>
-          {story.id === "esempio" && (
-            <span className="eyebrow shrink-0 rounded-full bg-github-bg px-2 py-0.5 text-[10px] text-github">
-              esempio
-            </span>
-          )}
-        </div>
-        <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-ink-soft">
-          {story.seed.pugno || "Seme ancora da piantare."}
-        </p>
-
-        <div className="mt-auto pt-4">
-          <div className="flex items-center gap-2">
-            <div className="flex h-1.5 flex-1 gap-0.5 overflow-hidden rounded-full">
-              {stages.map((s) => (
-                <span
-                  key={s.id}
-                  className="flex-1 transition-colors"
-                  style={{ background: s.state === "done" ? "var(--color-ink-soft)" : "var(--color-line)" }}
-                />
-              ))}
+    <li className={last ? "" : "border-b border-line"}>
+      <Link href={`/story/${story.id}`} className="flex gap-3.5 px-0.5 py-4">
+        <Reperto stage={st} size={40} className="-mt-0.5 shrink-0 self-start" />
+        <div className="flex min-w-0 flex-1 flex-col">
+          <div className="flex items-start justify-between gap-2">
+            <h3 className="serif text-[17px] font-medium leading-tight">{story.title}</h3>
+            <div className="flex shrink-0 items-center gap-1.5">
+              {story.id === "esempio" && (
+                <span className="eyebrow rounded-full bg-github-bg px-1.5 py-0.5 text-[9px] text-github">
+                  esempio
+                </span>
+              )}
+              <span className="whitespace-nowrap text-[10px] tabular-nums text-ink-faint">
+                N° {code}
+              </span>
             </div>
-            <span className="text-xs tabular-nums text-ink-faint">{done}/{stages.length}</span>
           </div>
-          {/* didascalia da reperto: stadio · parola, col colore della mano */}
+          <p className="mt-1.5 line-clamp-2 text-[12.5px] leading-snug text-ink-soft">
+            {story.seed.pugno || "Seme ancora da piantare."}
+          </p>
           <div className="mt-2.5 flex items-center gap-2 text-xs">
-            <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: sm.colorVar }} aria-hidden />
-            <span className="tracking-wide text-ink-soft">
-              <span className="tabular-nums font-medium">{sm.rom}</span>
-              {" · "}
-              <span className="serif italic text-ink">{sm.word}</span>
+            <span className="serif italic text-ink">{sm.rom}</span>
+            <span className="text-ink-faint">·</span>
+            <span className="text-ink-soft">{sm.word}</span>
+            <span className="ml-1 text-ink-faint">{st === 4 ? "fiorito" : "in coltura"}</span>
+            <span className="ml-auto flex items-center gap-1.5">
+              <span className="flex gap-0.5">
+                {stages.map((stg) => (
+                  <span
+                    key={stg.id}
+                    aria-hidden
+                    className="h-1.5 w-1.5 rotate-45"
+                    style={{
+                      border: `1px solid ${stg.state === "done" ? "var(--color-erba)" : "var(--color-line)"}`,
+                      background: stg.state === "done" ? "var(--color-erba)" : "transparent",
+                    }}
+                  />
+                ))}
+              </span>
+              <span className="text-[10px] tabular-nums text-ink-faint">
+                {done}/{stages.length}
+              </span>
             </span>
-            <span className="ml-auto text-ink-faint">{st === 4 ? "fiorito" : "in coltura"}</span>
           </div>
         </div>
-      </div>
-    </Link>
-  );
-}
-
-// Un germoglio che è già cresciuto un po': due foglie e un gambo, sul seme.
-function Seedling() {
-  return (
-    <svg width="60" height="60" viewBox="0 0 64 64" className="mx-auto" aria-hidden>
-      <path d="M32 58 V28" stroke="#8a8270" strokeWidth="2.5" fill="none" strokeLinecap="round" />
-      <path d="M32 40 C20 38 15 29 15 22 C25 22 32 29 32 40 Z" fill="#7a9a5e" />
-      <path d="M32 35 C44 33 49 24 49 17 C39 17 32 24 32 35 Z" fill="#9bb877" />
-      <path d="M32 40 C20 38 15 29 15 22 C25 22 32 29 32 40 Z" fill="#000" opacity="0.04" />
-      <circle cx="32" cy="60" r="3.2" fill="#b07d2e" />
-    </svg>
+      </Link>
+    </li>
   );
 }
