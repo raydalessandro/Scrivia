@@ -18,7 +18,7 @@ lavora chi deve lavorare" senza perdere allineamento tra front e back.
 |---|---|---|---|
 | **frontend** | ✅ | `app/` · `components/` · `globals.css` · `public/fonts/` | `frontend.md` + `docs/FRONTEND.md` |
 | **testing** | ✅ | `test/` · vitest · CI | `testing.md` + `docs/TEST_SPEC.md` |
-| **backend** | ⬜ prossimo | `lib/` (motore, comandi, ai, tipi) **tranne** `store.ts`/`supabase/*` | da creare: parità `seme/` + invarianti |
+| **backend** | ✅ | `lib/` (motore, comandi, ai, tipi) **tranne** `store.ts`/`supabase/*` | `backend.md` + `docs/BACKEND.md` |
 | **supabase** | ✅ agente pronto · M3 da eseguire | `lib/store.ts` · `lib/supabase/*` · migrazioni · bucket · auth | `supabase.md` + `docs/SUPABASE_SPEC.md` |
 
 L'**orchestratrice** non è un file: è la sessione principale guidata dal router di
