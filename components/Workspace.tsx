@@ -35,13 +35,19 @@ export function Workspace({ id }: { id: string }) {
   const [processOpen, setProcessOpen] = useState(false); // mobile: il processo è secondario
 
   useEffect(() => {
-    const s = loadStory(id);
-    if (!s) return setNotFound(true);
-    setStory(s);
-    // Apri sulla fase più avanzata raggiunta.
-    if (s.prose && !s.manus?.some((m) => m.imageUrl)) setPhase("immagini");
-    else if (s.prose) setPhase("libro");
-    else setPhase("seeding");
+    let alive = true;
+    loadStory(id).then((s) => {
+      if (!alive) return;
+      if (!s) return setNotFound(true);
+      setStory(s);
+      // Apri sulla fase più avanzata raggiunta.
+      if (s.prose && !s.manus?.some((m) => m.imageUrl)) setPhase("immagini");
+      else if (s.prose) setPhase("libro");
+      else setPhase("seeding");
+    });
+    return () => {
+      alive = false;
+    };
   }, [id]);
 
   const stages = useMemo(() => (story ? deriveStages(story) : []), [story]);
@@ -50,7 +56,7 @@ export function Workspace({ id }: { id: string }) {
     setStory((prev) => {
       if (!prev) return prev;
       const next = mut(structuredClone(prev));
-      saveStory(next);
+      void saveStory(next); // persist in background (ottimistico): la UI non aspetta
       return next;
     });
   }

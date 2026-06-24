@@ -20,7 +20,7 @@ lavora chi deve lavorare" senza perdere allineamento tra front e back.
 | **testing** | ✅ | `test/` · vitest · CI | `testing.md` + `docs/TEST_SPEC.md` |
 | **backend** | ✅ | `lib/` harness deterministico (motore, comandi, tipi, brief/audit/reference/…) **tranne** `store.ts`/`supabase/*` e `ai/*`/`images/*` | `backend.md` + `docs/BACKEND.md` |
 | **ai** | ✅ agente · frontiera in evoluzione | `lib/ai/*` · `lib/images/*` (modelli, generazione foto/video/audio, costi/limiti, MCP) | `ai.md` + `docs/AI_LAYER.md` |
-| **supabase** | ✅ agente pronto · M3 da eseguire | `lib/store.ts` · `lib/supabase/*` · migrazioni · bucket · auth | `supabase.md` + `docs/SUPABASE_SPEC.md` |
+| **supabase** | ✅ M3 in PR · schema+RLS+bucket applicati, adapter su Supabase | `lib/store.ts` · `lib/supabase/*` · migrazioni · bucket · auth | `supabase.md` + `docs/SUPABASE_SPEC.md` |
 
 L'**orchestratrice** ora ha un file — `orchestratrice.md` + `docs/ORCHESTRAZIONE.md` — ma resta
 una **categoria diversa** dai cinque qui sopra: è la **sessione principale** (il *delegante*),
