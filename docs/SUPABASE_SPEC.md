@@ -99,6 +99,7 @@ L'adapter **mantiene la stessa interfaccia** (nessun chiamante a monte cambia):
 ## Auth
 Supabase Auth, minimale (es. magic link email). Serve solo a dare un `user_id` reale alle RLS.
 La home/store si apre sull'utente loggato.
+Config operativa (SMTP + redirect URL, da impostare a mano sul dashboard): **`docs/SUPABASE_AUTH_SETUP.md`**.
 
 ## Segreti
 - **Mai nel repo.** `.env.example` elenca le **chiavi** senza valori:
