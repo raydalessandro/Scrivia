@@ -16,6 +16,7 @@
     "check": "vitest run && tsc -p tsconfig.test.json --noEmit && tsc --noEmit && next build"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.108.2",
     "next": "^15.1.6",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"

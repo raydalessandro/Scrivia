@@ -12,8 +12,9 @@ import { render, fireEvent, cleanup } from "@testing-library/react";
 import type { Story, Seed, StageId, PagePlan, ProsePage } from "../lib/types";
 
 // loadStory restituisce la storia preparata dal test (holder hoisted).
+// Ora lo store è async (backing Supabase): il mock ritorna una Promise.
 const store = vi.hoisted(() => ({ story: null as Story | null }));
-vi.mock("@/lib/store", () => ({ loadStory: () => store.story, saveStory: () => {} }));
+vi.mock("@/lib/store", () => ({ loadStory: () => Promise.resolve(store.story), saveStory: () => Promise.resolve() }));
 
 // next/link → semplice <a> (niente router context).
 vi.mock("next/link", () => ({ default: ({ href, children }: any) => <a href={typeof href === "string" ? href : "#"}>{children}</a> }));
@@ -63,13 +64,15 @@ function tabs(container: HTMLElement): HTMLButtonElement[] {
   return Array.from(container.querySelector("nav")!.querySelectorAll("button"));
 }
 
+// loadStory è async: dopo il render attendiamo che lo stelo compaia (la storia
+// è caricata) prima di asserire su tab e pannelli.
 describe("§6.1 Workspace: montaggio, stelo + tab, cambio fase raggiungibile", () => {
-  it("monta la storia: mostra lo stelo e le 4 tab, apre sulla fase seeding", () => {
+  it("monta la storia: mostra lo stelo e le 4 tab, apre sulla fase seeding", async () => {
     store.story = mkStory({ stage: "hook", name: "Bruno", pagePlan: true });
-    const { container, getByTestId } = render(<Workspace id="x" />);
+    const { container, findByTestId, getByTestId } = render(<Workspace id="x" />);
 
-    // stelo presente
-    expect(getByTestId("stem")).toBeTruthy();
+    // stelo presente (atteso: il caricamento è async)
+    expect(await findByTestId("stem")).toBeTruthy();
     // 4 passi nello stepper. Il redesign mostra i numeri (1·2·3·4); il nome della
     // fase attiva è nell'intestazione, non ripetuto su ogni tab.
     expect(tabs(container).length).toBe(4);
@@ -78,10 +81,10 @@ describe("§6.1 Workspace: montaggio, stelo + tab, cambio fase raggiungibile", (
     expect(getByTestId("phase-seeding")).toBeTruthy();
   });
 
-  it("cambio fase: cliccare una tab raggiungibile cambia il pannello attivo", () => {
+  it("cambio fase: cliccare una tab raggiungibile cambia il pannello attivo", async () => {
     store.story = mkStory({ stage: "hook", name: "Bruno", pagePlan: true });
-    const { container, getByTestId, queryByTestId } = render(<Workspace id="x" />);
-    expect(getByTestId("phase-seeding")).toBeTruthy();
+    const { container, findByTestId, getByTestId, queryByTestId } = render(<Workspace id="x" />);
+    expect(await findByTestId("phase-seeding")).toBeTruthy();
 
     // 'Scrivi la prosa' è raggiungibile (c'è il pagePlan) → click → pannello prosa
     fireEvent.click(tabs(container)[1]);
@@ -93,9 +96,10 @@ describe("§6.1 Workspace: montaggio, stelo + tab, cambio fase raggiungibile", (
 describe("§5.3 phaseReached: gating delle tab per artefatto", () => {
   // contratto: seeding sempre; prosa↔pagePlan; immagini↔prose; libro↔prose.
 
-  it("storia fresca: solo 'Progetta la storia' è abilitata", () => {
+  it("storia fresca: solo 'Progetta la storia' è abilitata", async () => {
     store.story = mkStory({ stage: "seed", name: "" });
-    const { container } = render(<Workspace id="x" />);
+    const { container, findByTestId } = render(<Workspace id="x" />);
+    await findByTestId("stem");
     const [seeding, prosa, immagini, libro] = tabs(container);
     expect(seeding.disabled).toBe(false);
     expect(prosa.disabled).toBe(true);
@@ -103,9 +107,10 @@ describe("§5.3 phaseReached: gating delle tab per artefatto", () => {
     expect(libro.disabled).toBe(true);
   });
 
-  it("con pagePlan: si abilita anche 'Scrivi la prosa' (non ancora illustrazioni/libro)", () => {
+  it("con pagePlan: si abilita anche 'Scrivi la prosa' (non ancora illustrazioni/libro)", async () => {
     store.story = mkStory({ stage: "hook", name: "Bruno", pagePlan: true });
-    const { container } = render(<Workspace id="x" />);
+    const { container, findByTestId } = render(<Workspace id="x" />);
+    await findByTestId("stem");
     const [seeding, prosa, immagini, libro] = tabs(container);
     expect(seeding.disabled).toBe(false);
     expect(prosa.disabled).toBe(false);
@@ -113,9 +118,10 @@ describe("§5.3 phaseReached: gating delle tab per artefatto", () => {
     expect(libro.disabled).toBe(true);
   });
 
-  it("con prosa: tutte e quattro le tab sono raggiungibili", () => {
+  it("con prosa: tutte e quattro le tab sono raggiungibili", async () => {
     store.story = mkStory({ stage: "prosa", name: "Bruno", pagePlan: true, prose: true });
-    const { container } = render(<Workspace id="x" />);
+    const { container, findByTestId } = render(<Workspace id="x" />);
+    await findByTestId("stem");
     for (const b of tabs(container)) expect(b.disabled).toBe(false);
   });
 });

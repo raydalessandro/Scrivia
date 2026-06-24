@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { loadStories, newStory, saveStory } from "@/lib/store";
+import { currentUserId, signInWithEmail, signOut, onAuthChange } from "@/lib/supabase/auth";
 import { deriveStages } from "@/lib/stages";
 import { Reperto, repertoStage, STAGE_META } from "@/components/visual";
 import type { Story } from "@/lib/types";
@@ -19,13 +20,29 @@ const PHASES = [
 
 export default function Home() {
   const [stories, setStories] = useState<Story[]>([]);
+  const [userId, setUserId] = useState<string | null>(null);
   const router = useRouter();
 
-  useEffect(() => setStories(loadStories()), []);
+  useEffect(() => {
+    let alive = true;
+    const refresh = () => loadStories().then((s) => alive && setStories(s));
+    refresh();
+    currentUserId().then((id) => alive && setUserId(id));
+    // login/logout (anche il ritorno dal magic link) → ricarica le storie.
+    const off = onAuthChange((id) => {
+      setUserId(id);
+      refresh();
+    });
+    return () => {
+      alive = false;
+      off();
+    };
+  }, []);
 
-  function plant() {
+  async function plant() {
+    if (!userId) return; // serve la sessione per persistere
     const s = newStory();
-    saveStory(s);
+    await saveStory(s);
     router.push(`/story/${s.id}`);
   }
 
@@ -77,22 +94,29 @@ export default function Home() {
           </div>
         </section>
 
+        {/* accesso (magic link) — serve a dare un'identità alle storie salvate */}
+        <AuthBar userId={userId} />
+
         {/* collezione */}
         <div className="mt-7 flex items-baseline justify-between border-b border-line pb-2">
           <h2 className="eyebrow">
             Le mie storie{stories.length ? ` · ${stories.length}` : ""}
           </h2>
-          <button type="button" onClick={plant} className="serif text-[13px] italic text-erba">
-            ＋ pianta un seme
-          </button>
+          {userId && (
+            <button type="button" onClick={plant} className="serif text-[13px] italic text-erba">
+              ＋ pianta un seme
+            </button>
+          )}
         </div>
 
         {stories.length === 0 ? (
           <div className="py-10 text-center">
             <p className="text-sm text-ink-soft">Nessuna storia, ancora.</p>
-            <button type="button" onClick={plant} className="btn-ink mt-4 text-sm">
-              <span className="text-base leading-none">＋</span> Pianta il primo seme
-            </button>
+            {userId && (
+              <button type="button" onClick={plant} className="btn-ink mt-4 text-sm">
+                <span className="text-base leading-none">＋</span> Pianta il primo seme
+              </button>
+            )}
           </div>
         ) : (
           <ul className="mt-1">
@@ -172,5 +196,61 @@ function StoryRow({
         </div>
       </Link>
     </li>
+  );
+}
+
+// Accesso minimale via magic link: l'email riceve un link, ci clicchi e torni
+// loggato. Serve solo a dare un'identità (user_id) alle storie salvate.
+function AuthBar({ userId }: { userId: string | null }) {
+  const [email, setEmail] = useState("");
+  const [sent, setSent] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+
+  if (userId) {
+    return (
+      <div className="mt-6 flex items-center justify-between rounded-2xl border border-line bg-paper-2 px-4 py-2.5">
+        <span className="text-[12px] text-ink-soft">Sei dentro · le tue storie sono salvate</span>
+        <button type="button" onClick={() => signOut()} className="serif text-[12px] italic text-ink-soft underline">
+          esci
+        </button>
+      </div>
+    );
+  }
+
+  async function send(e: React.FormEvent) {
+    e.preventDefault();
+    setErr(null);
+    const { error } = await signInWithEmail(email.trim());
+    if (error) setErr(error);
+    else setSent(true);
+  }
+
+  return (
+    <div className="mt-6 rounded-2xl border border-line bg-paper-2 px-4 py-3.5">
+      {sent ? (
+        <p className="text-[12.5px] leading-relaxed text-ink-soft">
+          Ti ho mandato un link a <span className="serif italic text-ink">{email}</span>. Aprilo per
+          entrare e salvare le tue storie.
+        </p>
+      ) : (
+        <form onSubmit={send} className="flex flex-col gap-2">
+          <label className="eyebrow">Accedi per salvare le tue storie</label>
+          <div className="flex gap-2">
+            <input
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="la-tua@email.it"
+              className="min-w-0 flex-1 rounded-lg border border-line bg-paper px-3 py-2 text-sm outline-none placeholder:text-ink-faint focus:border-ink-soft"
+            />
+            <button type="submit" className="btn-ink shrink-0 text-sm">
+              Invia link
+            </button>
+          </div>
+          {err && <p className="text-[11.5px] text-github">{err}</p>}
+        </form>
+      )}
+    </div>
   );
 }

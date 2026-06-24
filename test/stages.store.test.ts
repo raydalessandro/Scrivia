@@ -5,16 +5,57 @@
 //   - 5.2 currentPhase: seeding→immagini→libro secondo prose/manus/stage (non passa mai da "prosa")
 //   - 5.4 store: roundtrip saveStory/loadStory, EXAMPLE_STORY sempre presente, deleteStory protegge l'esempio
 //
-// jsdom serve a 5.4 (localStorage reale). 5.1/5.2 sono funzioni pure e girano comunque.
-// 5.3 (phaseReached, interno a Workspace) è osservabile solo dal rendering delle tab:
-// è coperto dallo smoke di Workspace in §6 (un solo harness, niente duplicazione).
+// 5.1/5.2 sono funzioni pure e girano comunque. 5.4 ora gira contro un client
+// Supabase FINTO in-memory (no rete, no localStorage): il backing è cambiato,
+// gli invarianti no. 5.3 (phaseReached, interno a Workspace) è osservabile solo
+// dal rendering delle tab: coperto dallo smoke di Workspace in §6.
 
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import { deriveStages, currentPhase } from "../lib/stages";
 import { newStory, emptySeed, saveStory, loadStory, loadStories, deleteStory } from "../lib/store";
 import { EXAMPLE_STORY } from "../lib/example";
 import { buildNode } from "../lib/engine";
 import type { Story, Seed, StageId, StageState, PagePlan, ProsePage, ManusPrompt, CriticVerdict } from "../lib/types";
+
+// --- client Supabase finto: una Map in memoria dietro la stessa superficie che
+//     l'adapter usa (auth.getUser, from().select/eq/order/maybeSingle, upsert,
+//     delete().eq). Così §5.4 prova il roundtrip dell'adapter senza rete. -----
+const sb = vi.hoisted(() => {
+  const db = new Map<string, Record<string, unknown>>();
+  const user = { id: "u-test" };
+  const query = () => {
+    const filters: ((r: Record<string, unknown>) => boolean)[] = [];
+    const run = () => [...db.values()].filter((r) => filters.every((f) => f(r)));
+    const q = {
+      select: () => q,
+      eq: (c: string, v: unknown) => {
+        filters.push((r) => r[c] === v);
+        return q;
+      },
+      order: () => Promise.resolve({ data: run(), error: null }),
+      maybeSingle: () => Promise.resolve({ data: run()[0] ?? null, error: null }),
+    };
+    return q;
+  };
+  const client = {
+    auth: { getUser: () => Promise.resolve({ data: { user } }) },
+    from: () => ({
+      select: () => query(),
+      upsert: (row: Record<string, unknown>) => {
+        db.set(row.id as string, row);
+        return Promise.resolve({ error: null });
+      },
+      delete: () => ({
+        eq: (c: string, v: unknown) => {
+          for (const [k, r] of [...db]) if (r[c] === v) db.delete(k);
+          return Promise.resolve({ error: null });
+        },
+      }),
+    }),
+  };
+  return { db, client };
+});
+vi.mock("@/lib/supabase/client", () => ({ getSupabase: () => sb.client }));
 
 // --- artefatti minimi (servono solo come "presenti", veri e tipizzati) ----
 const NODE_SEED: Seed = {
@@ -135,47 +176,47 @@ describe("§5.2 currentPhase: seeding→immagini→libro secondo prose/manus/sta
 });
 
 // ===========================================================================
-// 5.4 — store (localStorage reale via jsdom)
+// 5.4 — store (adapter su client Supabase finto in-memory)
 // ===========================================================================
 describe("§5.4 store: roundtrip, EXAMPLE_STORY sempre presente, deleteStory protegge l'esempio", () => {
-  beforeEach(() => localStorage.clear());
+  beforeEach(() => sb.db.clear());
 
-  it("saveStory → loadStory: roundtrip fedele", () => {
+  it("saveStory → loadStory: roundtrip fedele", async () => {
     const s = newStory();
     const titled: Story = { ...s, title: "La radura" };
-    saveStory(titled);
-    const back = loadStory(s.id);
+    await saveStory(titled);
+    const back = await loadStory(s.id);
     expect(back).toBeDefined();
     expect(back!.id).toBe(s.id);
     expect(back!.title).toBe("La radura");
     expect(back).toEqual(titled); // serializzazione/deserializzazione fedele
   });
 
-  it("EXAMPLE_STORY è sempre presente (anche con storage vuoto) ed è la prima della lista", () => {
-    const list = loadStories();
+  it("EXAMPLE_STORY è sempre presente (anche con storage vuoto) ed è la prima della lista", async () => {
+    const list = await loadStories();
     expect(list[0].id).toBe("esempio");
     expect(list[0].id).toBe(EXAMPLE_STORY.id);
 
     // dopo aver salvato una storia mia, l'esempio resta e resta in testa
-    saveStory({ ...newStory(), title: "mia" });
-    const list2 = loadStories();
+    await saveStory({ ...newStory(), title: "mia" });
+    const list2 = await loadStories();
     expect(list2[0].id).toBe(EXAMPLE_STORY.id);
     expect(list2.some((x) => x.id === EXAMPLE_STORY.id)).toBe(true);
   });
 
-  it("deleteStory rimuove una storia mia ma NON l'esempio (guardia id==='esempio')", () => {
+  it("deleteStory rimuove una storia mia ma NON l'esempio (guardia id==='esempio')", async () => {
     const mine: Story = { ...newStory(), title: "da cancellare" };
-    saveStory(mine);
-    expect(loadStory(mine.id)).toBeDefined();
+    await saveStory(mine);
+    expect(await loadStory(mine.id)).toBeDefined();
 
-    deleteStory(mine.id);
-    expect(loadStory(mine.id)).toBeUndefined();
+    await deleteStory(mine.id);
+    expect(await loadStory(mine.id)).toBeUndefined();
 
     // l'esempio è ancora raggiungibile
-    expect(loadStory("esempio")).toBeDefined();
+    expect(await loadStory("esempio")).toBeDefined();
     // e cancellarlo è un no-op
-    deleteStory("esempio");
-    expect(loadStory("esempio")).toBeDefined();
+    await deleteStory("esempio");
+    expect(await loadStory("esempio")).toBeDefined();
   });
 
   it("emptySeed/newStory: forma iniziale attesa", () => {
@@ -186,7 +227,8 @@ describe("§5.4 store: roundtrip, EXAMPLE_STORY sempre presente, deleteStory pro
 
     const st = newStory();
     expect(st.stage).toBe("seed");
-    expect(st.id.startsWith("s")).toBe(true);
+    // l'id è ora un uuid (lo schema lo congela come uuid)
+    expect(st.id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);
     expect(st.ledger).toEqual([]);
   });
 });
